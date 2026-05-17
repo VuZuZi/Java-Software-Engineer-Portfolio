@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Portfolio Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.3);
+        }
+        .card-stats {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .project-card {
+            border-radius: 15px;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .skill-progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .badge-skill {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 p-0">
+            <div class="sidebar p-3">
+                <div class="text-center mb-4">
+                    <div class="logo">
+                        <i class="fas fa-rocket fa-3x text-white"></i>
+                    </div>
+                    <h4 class="text-white mt-2">Portfolio Platform</h4>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/projects">
+                            <i class="fas fa-project-diagram me-2"></i> Dự án
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/skills">
+                            <i class="fas fa-code me-2"></i> Kỹ năng
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">
+                            <i class="fas fa-user me-2"></i> Hồ sơ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chat">
+                            <i class="fas fa-comments me-2"></i> Tin nhắn
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 p-0">
+            <!-- Navbar -->
+            <nav class="navbar navbar-light p-3 px-4">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0">Xin chào, <span th:text="${user.name}">User</span>!</h5>
+                </div>
+                <div class="d-flex align-items-center">
+                    <img th:src="${user.picture}" class="avatar me-2" alt="Avatar">
+                    <span th:text="${user.email}">email@example.com</span>
+                </div>
+            </nav>
+
+            <!-- Content -->
+            <div class="p-4">
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card card-stats p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Dự án tham gia</h6>
+                                    <h3 class="mb-0" th:text="${stats.projectsCount}">0</h3>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-project-diagram fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card card-stats p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Kỹ năng đã có</h6>
+                                    <h3 class="mb-0" th:text="${stats.skillsCount}">0</h3>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-code fa-2x text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card card-stats p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Match trung bình</h6>
+                                    <h3 class="mb-0" th:text="${stats.avgMatch} + '%'">0%</h3>
+                                </div>
+                                <div class="bg-info bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-chart-line fa-2x text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects List -->
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">📋 Dự án phù hợp với bạn</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" th:each="project : ${projects}">
+                            <div class="col-md-6 mb-3" th:if="${projectStat.index < 4}">
+                                <div class="project-card card p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 th:text="${project.name}">Project Name</h6>
+                                            <p class="text-muted small mb-2" th:text="${project.description}">Description</p>
+                                            <div class="mt-2">
+                                                <span class="badge-skill" th:each="skill : ${project.requiredSkills}" th:text="${skill.name}">Java</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-success" th:text="${project.status}">OPEN</span>
+                                            <div class="mt-2">
+                                                <a th:href="'/projects/' + ${project.id}" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${projects == null or projects.empty}" class="text-center text-muted p-5">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>Chưa có dự án nào phù hợp</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
