@@ -33,10 +33,11 @@
             transform: translateY(-5px);
         }
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
+            border: 3px solid white;
         }
         .navbar {
             background: white;
@@ -62,24 +63,64 @@
             border-radius: 20px;
             font-size: 12px;
         }
+        .user-info-sidebar {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+        }
+        .user-name-sidebar {
+            color: white;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .user-email-sidebar {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.8rem;
+            word-break: break-word;
+        }
+        .role-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 8px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
 <div class="container-fluid">
-    <div th:replace="~{fragments/header :: header (currentPage='dashboard')}"></div>
-
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3 col-lg-2 p-0">
             <div class="sidebar p-3">
-                <div class="text-center mb-4">
-                    <div class="logo">
-                        <i class="fas fa-rocket fa-3x text-white">
-                            
-                        </i>
+
+                <!-- 🔥 HIỂN THỊ AVATAR VÀ THÔNG TIN USER TRONG SIDEBAR -->
+                <div class="user-info-sidebar" th:if="${user != null}">
+                    <img th:src="${user.picture}" class="avatar" alt="Avatar">
+                    <div class="user-name-sidebar" th:text="${user.name}">User Name</div>
+                    <div class="user-email-sidebar" th:text="${user.email}">user@example.com</div>
+                    <div class="role-badge" th:if="${user.role == 'ADMIN'}">
+                        <i class="fas fa-shield-alt me-1"></i> Quản trị viên
                     </div>
-                    <h4 class="text-white mt-2">Đoàn Đình Vũ</h4>
+                    <div class="role-badge" th:if="${user.role != 'ADMIN'}">
+                        <i class="fas fa-user me-1"></i> Thành viên
+                    </div>
                 </div>
+
+                <!-- Hiển thị khi chưa đăng nhập -->
+                <div class="user-info-sidebar" th:if="${user == null}">
+                    <img src="https://via.placeholder.com/80" class="avatar" alt="Avatar">
+                    <div class="user-name-sidebar">Khách</div>
+                    <div class="user-email-sidebar">Chưa đăng nhập</div>
+                    <a href="/login" class="btn btn-sm btn-outline-light mt-2">
+                        <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                    </a>
+                </div>
+
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link active" href="/dashboard">
@@ -106,6 +147,11 @@
                             <i class="fas fa-comments me-2"></i> Tin nhắn
                         </a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-shield-alt me-2"></i> Admin
+                        </a>
+                    </li>
                     <li class="nav-item mt-4">
                         <a class="nav-link" href="/logout">
                             <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
@@ -117,17 +163,6 @@
 
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 p-0">
-            <!-- Navbar -->
-<!--            <nav class="navbar navbar-light p-3 px-4">-->
-<!--                <div class="d-flex align-items-center">-->
-<!--                    <h5 class="mb-0">Xin chào, <span th:text="${user.name}">User</span>!</h5>-->
-<!--                </div>-->
-<!--                <div class="d-flex align-items-center">-->
-<!--                    <img th:src="${user.picture}" class="avatar me-2" alt="Avatar">-->
-<!--                    <span th:text="${user.email}">email@example.com</span>-->
-<!--                </div>-->
-<!--            </nav>-->
-
             <!-- Content -->
             <div class="p-4">
                 <!-- Stats Cards -->

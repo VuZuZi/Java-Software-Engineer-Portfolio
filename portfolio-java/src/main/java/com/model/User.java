@@ -32,6 +32,9 @@ public class User {
 
     private String providerId;
 
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserSkill> skills = new ArrayList<>();
 
@@ -56,4 +59,5 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
 }

@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.2.0"      // THÊM DÒNG NÀY
-    id("io.spring.dependency-management") version "1.1.4"  // THÊM DÒNG NÀY
+    id("org.springframework.boot") version "3.2.0"
+    id("io.spring.dependency-management") version "1.1.4"
 }
 
 group = "com.lge"
@@ -17,7 +17,9 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot Starters
+    // ===============================
+    // 🌱 SPRING BOOT STARTERS
+    // ===============================
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
@@ -26,14 +28,30 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    // Database
-    implementation("mysql:mysql-connector-java:8.0.33")
+    // ===============================
+    // 🔥 FIX QUAN TRỌNG (CHO sec:authorize)
+    // ===============================
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 
-    // Lombok (giảm code thừa)
+    // ===============================
+    // 🗄️ DATABASE
+    // ===============================
+    implementation("com.mysql:mysql-connector-j:8.2.0")
+
+    // ===============================
+    // ☁️ CLOUDINARY
+    // ===============================
+    implementation("com.cloudinary:cloudinary-http44:1.33.0")
+
+    // ===============================
+    // ⚙️ LOMBOK
+    // ===============================
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    // Test
+    // ===============================
+    // 🧪 TEST
+    // ===============================
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

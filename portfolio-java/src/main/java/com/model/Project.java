@@ -19,7 +19,10 @@ public class Project {
     private LocalDate endDate;
     private String role;
     private String technologies;
-
+    private String imageUrl;       // Lưu URL ảnh từ Cloudinary
+    private String imagePublicId;  // Lưu public_id để xóa sau
+    private String logoUrl;
+    private String logoPublicId;
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -36,5 +39,4 @@ public class Project {
     private ProjectStatus status = ProjectStatus.OPEN;
 
     private String githubLink;
-    private String imageUrl;
 }
