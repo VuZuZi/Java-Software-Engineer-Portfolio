@@ -66,15 +66,19 @@
 </head>
 <body>
 <div class="container-fluid">
+    <div th:replace="~{fragments/header :: header (currentPage='dashboard')}"></div>
+
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3 col-lg-2 p-0">
             <div class="sidebar p-3">
                 <div class="text-center mb-4">
                     <div class="logo">
-                        <i class="fas fa-rocket fa-3x text-white"></i>
+                        <i class="fas fa-rocket fa-3x text-white">
+                            
+                        </i>
                     </div>
-                    <h4 class="text-white mt-2">Portfolio Platform</h4>
+                    <h4 class="text-white mt-2">Đoàn Đình Vũ</h4>
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -114,15 +118,15 @@
         <!-- Main Content -->
         <div class="col-md-9 col-lg-10 p-0">
             <!-- Navbar -->
-            <nav class="navbar navbar-light p-3 px-4">
-                <div class="d-flex align-items-center">
-                    <h5 class="mb-0">Xin chào, <span th:text="${user.name}">User</span>!</h5>
-                </div>
-                <div class="d-flex align-items-center">
-                    <img th:src="${user.picture}" class="avatar me-2" alt="Avatar">
-                    <span th:text="${user.email}">email@example.com</span>
-                </div>
-            </nav>
+<!--            <nav class="navbar navbar-light p-3 px-4">-->
+<!--                <div class="d-flex align-items-center">-->
+<!--                    <h5 class="mb-0">Xin chào, <span th:text="${user.name}">User</span>!</h5>-->
+<!--                </div>-->
+<!--                <div class="d-flex align-items-center">-->
+<!--                    <img th:src="${user.picture}" class="avatar me-2" alt="Avatar">-->
+<!--                    <span th:text="${user.email}">email@example.com</span>-->
+<!--                </div>-->
+<!--            </nav>-->
 
             <!-- Content -->
             <div class="p-4">

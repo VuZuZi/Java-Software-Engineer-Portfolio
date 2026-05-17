@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Portfolio Platform'">Portfolio Platform</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        .dropdown-toggle::after {
+            display: none;
+        }
+        .nav-link:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s;
+        }
+        .search-box:focus {
+            box-shadow: none;
+            border-color: #dee2e6;
+        }
+    </style>
+</head>
+
+<!-- Header Fragment -->
+<header th:fragment="header" class="p-3 mb-3 border-bottom bg-white shadow-sm">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+            <!-- Logo -->
+            <a href="/dashboard" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+                <i class="fas fa-rocket fa-2x text-primary me-2"></i>
+                <span class="fs-4 fw-semibold">Portfolio</span>
+            </a>
+
+            <!-- Navigation Menu -->
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 ms-lg-4">
+                <!-- Dashboard -->
+                <li>
+                    <a href="/dashboard" class="nav-link px-3"
+                       th:classappend="${currentPage == 'dashboard'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+
+                <!-- Dự án -->
+                <li>
+                    <a href="/projects" class="nav-link px-3"
+                       th:classappend="${currentPage == 'projects'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-project-diagram me-1"></i> Dự án
+                    </a>
+                </li>
+
+                <!-- Kỹ năng -->
+                <li>
+                    <a href="/skills" class="nav-link px-3"
+                       th:classappend="${currentPage == 'skill'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-code me-1"></i> Kỹ năng
+                    </a>
+                </li>
+
+                <!-- Hồ sơ -->
+                <li>
+                    <a href="/profile" class="nav-link px-3"
+                       th:classappend="${currentPage == 'profile'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-user me-1"></i> Hồ sơ
+                    </a>
+                </li>
+
+                <!-- Tin nhắn -->
+                <li>
+                    <a href="/chat" class="nav-link px-3"
+                       th:classappend="${currentPage == 'chat'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-comments me-1"></i> Tin nhắn
+                    </a>
+                </li>
+
+                <!-- Admin (chỉ hiển thị với ROLE_ADMIN) -->
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a href="/admin" class="nav-link px-3"
+                       th:classappend="${currentPage == 'admin'} ? 'link-primary fw-semibold' : 'link-dark'">
+                        <i class="fas fa-shield-alt me-1"></i> Admin
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Search Box -->
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <input type="search" class="form-control search-box"
+                       placeholder="Tìm kiếm..." aria-label="Search">
+            </form>
+
+            <!-- User Dropdown -->
+            <div class="dropdown text-end">
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
+                   id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img th:src="${user != null ? user.picture : 'https://via.placeholder.com/40'}"
+                         alt="Avatar" width="40" height="40" class="rounded-circle border">
+                </a>
+                <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser1">
+                    <li>
+                        <div class="dropdown-item-text fw-semibold" th:text="${user != null ? user.name : 'Guest'}">
+                            User Name
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-item-text small text-muted" th:text="${user != null ? user.email : 'guest@example.com'}">
+                            user@example.com
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/landing">
+                        <i class="fas fa-user me-2"></i> landing
+                    </a></li>
+                    <li><a class="dropdown-item" href="/settings">
+                        <i class="fas fa-cog me-2"></i> Cài đặt
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Bootstrap JS Bundle (with Popper) -->
+<script th:fragment="scripts" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>

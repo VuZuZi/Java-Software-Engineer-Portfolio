@@ -70,7 +70,7 @@ public class DashboardController {
         return "dashboard";
     }
 
-    @GetMapping("/")
+    @GetMapping("/home")
     public String home() {
         return "redirect:/dashboard";
     }

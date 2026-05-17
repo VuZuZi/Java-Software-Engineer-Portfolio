@@ -7,6 +7,7 @@ import lombok.Data;
 @Table(name = "skills")
 @Data
 public class Skill {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,5 +15,19 @@ public class Skill {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private String category; // Java, Frontend, Database, etc.
+    private String category;
+
+    private String icon;
+
+    private Integer yearsExperience;
+
+    private Integer proficiencyPercent;
+
+    @Column(updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = java.time.LocalDateTime.now();
+    }
 }
