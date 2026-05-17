@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,31 +13,18 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- AOS Animation -->
+    <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
 
         /* Navbar */
         .navbar {
             background: rgba(255,255,255,0.95);
             box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-
-        .navbar.scrolled {
-            background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
         }
 
         /* Hero Section */
@@ -46,84 +35,31 @@
             display: flex;
             align-items: center;
             position: relative;
-            overflow: hidden;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000"><path fill="rgba(255,255,255,0.05)" d="M0,0 L2000,0 L2000,2000 L0,2000 Z M500,500 L1500,500 L1500,1500 L500,1500 Z"/></svg>');
-            animation: rotate 30s linear infinite;
+        .hero h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; margin-bottom: 30px; }
+        .hero .btn { padding: 12px 35px; border-radius: 50px; margin: 0 10px; }
+
+        /* Section */
+        section {
+            scroll-margin-top: 80px;
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 30px;
-            animation: fadeInUp 1s ease;
-        }
-
-        .hero .btn {
-            padding: 12px 35px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            margin: 0 10px;
-            transition: all 0.3s;
-            animation: fadeInUp 1.2s ease;
-        }
-
-        .hero .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Section Title */
         .section-title {
             text-align: center;
             margin-bottom: 60px;
         }
-
         .section-title h2 {
             font-size: 2.5rem;
             font-weight: 700;
             color: #333;
-            margin-bottom: 15px;
         }
-
         .section-title .underline {
             width: 80px;
             height: 4px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0 auto;
+            margin: 10px auto;
             border-radius: 2px;
         }
 
@@ -137,12 +73,10 @@
             text-align: center;
             height: 100%;
         }
-
         .service-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
-
         .service-icon {
             width: 80px;
             height: 80px;
@@ -153,11 +87,7 @@
             justify-content: center;
             margin: 0 auto 20px;
         }
-
-        .service-icon i {
-            font-size: 2.5rem;
-            color: white;
-        }
+        .service-icon i { font-size: 2.5rem; color: white; }
 
         /* Project Card */
         .project-card {
@@ -166,36 +96,14 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.3s;
             height: 100%;
+            background: white;
         }
-
-        .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-
+        .project-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
         .project-img {
             height: 200px;
             background-size: cover;
             background-position: center;
-            position: relative;
-        }
-
-        .project-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(102,126,234,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .project-card:hover .project-overlay {
-            opacity: 1;
+            background-color: #667eea;
         }
 
         /* Skill Badge */
@@ -209,33 +117,14 @@
             font-weight: 500;
             transition: all 0.3s;
         }
-
         .skill-badge:hover {
             background: #667eea;
             color: white;
             transform: scale(1.05);
         }
 
-        /* CTA Section */
-        .cta-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-        }
-
-        .cta-section h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
         /* Footer */
-        footer {
-            background: #2d3748;
-            color: white;
-            padding: 50px 0 20px;
-        }
-
+        footer { background: #2d3748; color: white; padding: 50px 0 20px; }
         .social-icon {
             width: 45px;
             height: 45px;
@@ -247,64 +136,98 @@
             margin: 0 8px;
             transition: all 0.3s;
         }
+        .social-icon:hover { background: #667eea; transform: translateY(-3px); }
+        .social-icon i { color: white; font-size: 1.3rem; }
 
-        .social-icon:hover {
-            background: #667eea;
-            transform: translateY(-3px);
-        }
-
-        .social-icon i {
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-size: 1.3rem;
+            padding: 80px 0;
+            text-align: center;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            .hero p {
-                font-size: 1rem;
-            }
-            .section-title h2 {
-                font-size: 1.8rem;
-            }
+            .hero h1 { font-size: 2rem; }
+            .section-title h2 { font-size: 1.8rem; }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navigation -->
+<!-- ================= HEADER ================= -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">
-            <i class="fas fa-rocket text-primary me-2"></i>
-            Portfolio
+
+        <!-- LOGO -->
+        <a th:href="@{${#authorization.expression('isAuthenticated()')} ? '/dashboard' : '/'}"
+           class="d-flex align-items-center text-dark text-decoration-none">
+
+            <!-- Avatar khi login -->
+            <img sec:authorize="isAuthenticated()"
+                 th:src="${#authentication.principal.attributes['picture']}"
+                 width="40" height="40"
+                 class="rounded-circle me-2"/>
+
+            <!-- Logo khi chưa login -->
+            <i sec:authorize="isAnonymous()" class="fas fa-rocket fa-2x text-primary me-2"></i>
+
+            <span class="fs-4 fw-semibold">Đoàn Đình Vũ</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+        <!-- Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
+
+        <div class="collapse navbar-collapse" id="nav">
             <ul class="navbar-nav ms-auto">
+
                 <li class="nav-item"><a class="nav-link" href="#home">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" href="#services">Dịch vụ</a></li>
                 <li class="nav-item"><a class="nav-link" href="#projects">Dự án</a></li>
                 <li class="nav-item"><a class="nav-link" href="#skills">Kỹ năng</a></li>
                 <li class="nav-item"><a class="nav-link" href="#contact">Liên hệ</a></li>
-                <li class="nav-item">
-                    <a href="/oauth2/authorization/google" class="btn btn-google w-100">
-                        <img src="https://www.google.com/favicon.ico" width="20" class="me-2">
-                        Đăng nhập với Google
+
+                <!-- CHƯA LOGIN -->
+                <li class="nav-item ms-2" sec:authorize="isAnonymous()">
+                    <a href="/oauth2/authorization/google" class="btn btn-danger">
+                        <i class="fab fa-google me-2"></i> Đăng nhập
                     </a>
                 </li>
+
+                <!-- ĐÃ LOGIN -->
+                <li class="nav-item dropdown ms-2" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center"
+                       data-bs-toggle="dropdown">
+
+                        <img th:src="${#authentication.principal.attributes['picture']}"
+                             width="35" height="35"
+                             class="rounded-circle me-2"/>
+
+                        <span th:text="${#authentication.principal.attributes['name']}"></span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <span class="dropdown-item-text small text-muted"
+                                  th:text="${#authentication.principal.attributes['email']}"></span>
+                        </li>
+                        <li><hr></li>
+                        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                        <li><a class="dropdown-item text-danger" href="/logout">Đăng xuất</a></li>
+                    </ul>
+                </li>
+
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Hero Section -->
+<!-- ================= HERO ================= -->
 <section id="home" class="hero">
-    <div class="container hero-content">
+    <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7" data-aos="fade-right">
                 <h1>Xin chào! Tôi là <span id="typed-text"></span></h1>
@@ -314,19 +237,25 @@
                     <a href="/projects" class="btn btn-light">
                         <i class="fas fa-project-diagram me-2"></i>Xem dự án
                     </a>
-                    <a href="/login" class="btn btn-outline-light">
-                        <i class="fab fa-google me-2"></i>Đăng nhập
+                    <a sec:authorize="isAnonymous()" href="/oauth2/authorization/google"
+                       class="btn btn-outline-light">
+                        <i class="fab fa-google me-2"></i> Đăng nhập
                     </a>
                 </div>
             </div>
             <div class="col-lg-5 text-center" data-aos="fade-left">
-                <img src="https://lh3.googleusercontent.com/a/ACg8ocLGBuhf95sDUbnO0l6mf8y7VRGhKx1mLHgJBW9rXNers35qipA=s96-c" alt="Developer" class="img-fluid" style="max-width: 100%;">
+                <img sec:authorize="isAuthenticated()"
+                     th:src="${#authentication.principal.attributes['picture']}"
+                     alt="Avatar" class="img-fluid rounded-circle shadow-lg" style="max-width: 70%;">
+                <img sec:authorize="isAnonymous()"
+                     src="https://cdn-icons-png.flaticon.com/512/1995/1995572.png"
+                     alt="Developer" class="img-fluid" style="max-width: 70%;">
             </div>
         </div>
     </div>
 </section>
 
-<!-- Services Section -->
+<!-- ================= SERVICES ================= -->
 <section id="services" class="py-5">
     <div class="container">
         <div class="section-title" data-aos="fade-up">
@@ -337,27 +266,21 @@
         <div class="row g-4">
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
+                    <div class="service-icon"><i class="fas fa-server"></i></div>
                     <h4>Backend Development</h4>
                     <p class="text-muted">Java, Spring Boot, Microservices, REST API, WebSocket</p>
                 </div>
             </div>
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
+                    <div class="service-icon"><i class="fas fa-database"></i></div>
                     <h4>Database Design</h4>
                     <p class="text-muted">MySQL, MongoDB, PostgreSQL, Redis, Query Optimization</p>
                 </div>
             </div>
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
+                    <div class="service-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                     <h4>DevOps & Deployment</h4>
                     <p class="text-muted">Docker, CI/CD, Linux Server, Cloud Deployment</p>
                 </div>
@@ -366,7 +289,7 @@
     </div>
 </section>
 
-<!-- Projects Section -->
+<!-- ================= PROJECTS ================= -->
 <section id="projects" class="py-5 bg-light">
     <div class="container">
         <div class="section-title" data-aos="fade-up">
@@ -378,9 +301,6 @@
             <div class="col-md-4" data-aos="flip-left" data-aos-delay="100">
                 <div class="project-card">
                     <div class="project-img" style="background-image: url('https://placehold.co/600x400/667eea/white?text=Car+Infotainment');">
-                        <div class="project-overlay">
-                            <a href="/projects" class="btn btn-light">Xem chi tiết</a>
-                        </div>
                     </div>
                     <div class="p-3">
                         <h5>Car Infotainment System</h5>
@@ -391,9 +311,6 @@
             <div class="col-md-4" data-aos="flip-left" data-aos-delay="200">
                 <div class="project-card">
                     <div class="project-img" style="background-image: url('https://placehold.co/600x400/764ba2/white?text=Chat+Platform');">
-                        <div class="project-overlay">
-                            <a href="/projects" class="btn btn-light">Xem chi tiết</a>
-                        </div>
                     </div>
                     <div class="p-3">
                         <h5>Real-time Chat Platform</h5>
@@ -404,13 +321,10 @@
             <div class="col-md-4" data-aos="flip-left" data-aos-delay="300">
                 <div class="project-card">
                     <div class="project-img" style="background-image: url('https://placehold.co/600x400/667eea/white?text=Portfolio+Platform');">
-                        <div class="project-overlay">
-                            <a href="/projects" class="btn btn-light">Xem chi tiết</a>
-                        </div>
                     </div>
                     <div class="p-3">
-                        <h5>Portfolio Matching System</h5>
-                        <p class="text-muted small">Spring Boot, MySQL, OAuth2</p>
+                        <h5>Portfolio Platform</h5>
+                        <p class="text-muted small">Spring Boot, MySQL, OAuth2, WebSocket</p>
                     </div>
                 </div>
             </div>
@@ -421,7 +335,7 @@
     </div>
 </section>
 
-<!-- Skills Section -->
+<!-- ================= SKILLS ================= -->
 <section id="skills" class="py-5">
     <div class="container">
         <div class="section-title" data-aos="fade-up">
@@ -444,20 +358,23 @@
             <span class="skill-badge">Maven/Gradle</span>
             <span class="skill-badge">IntelliJ IDEA</span>
             <span class="skill-badge">JIRA</span>
+            <span class="skill-badge">NetBeans</span>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="cta-section">
+<!-- ================= CONTACT / CTA ================= -->
+<section id="contact" class="cta-section">
     <div class="container">
         <h3 data-aos="zoom-in">Sẵn sàng cho dự án tiếp theo?</h3>
         <p class="mb-4">Hãy liên hệ với tôi để cùng thảo luận về cơ hội hợp tác</p>
-        <a href="/contact" class="btn btn-light btn-lg">Liên hệ ngay</a>
+        <a href="mailto:markdoan38@gmail.com" class="btn btn-light btn-lg">
+            <i class="fas fa-envelope me-2"></i> Liên hệ ngay
+        </a>
     </div>
 </section>
 
-<!-- Footer -->
+<!-- ================= FOOTER ================= -->
 <footer>
     <div class="container">
         <div class="row">
@@ -471,10 +388,7 @@
                     <li><a href="#home" class="text-muted text-decoration-none">Trang chủ</a></li>
                     <li><a href="#projects" class="text-muted text-decoration-none">Dự án</a></li>
                     <li><a href="#skills" class="text-muted text-decoration-none">Kỹ năng</a></li>
-                    <li><a href="/oauth2/authorization/google" class="btn btn-google w-100">
-                        <img src="https://www.google.com/favicon.ico" width="20" class="me-2">
-                        Đăng nhập với Google
-                    </a></li>
+                    <li><a href="#contact" class="text-muted text-decoration-none">Liên hệ</a></li>
                 </ul>
             </div>
             <div class="col-md-4 mb-4">
@@ -486,7 +400,7 @@
                     <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
                 </div>
                 <p class="mt-3 text-muted">
-                    <i class="fas fa-envelope me-2"></i> your.email@example.com<br>
+                    <i class="fas fa-envelope me-2"></i> markdoan38@gmail.com<br>
                     <i class="fas fa-map-marker-alt me-2"></i> Đà Nẵng, Việt Nam
                 </p>
             </div>
@@ -504,28 +418,28 @@
 <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
 <script>
-    // AOS Animation
-    AOS.init({
-        duration: 1000,
-        once: true
-    });
+    AOS.init({ duration: 1000, once: true });
 
-    // Typed.js
-    var typed = new Typed('#typed-text', {
-        strings: ['Nguyễn Văn A', 'Java Developer', 'Spring Boot Expert', 'Problem Solver'],
+    new Typed('#typed-text', {
+        strings: ['Đoàn Đình Vũ', 'Java Developer', 'Spring Boot Expert', 'Problem Solver'],
         typeSpeed: 50,
         backSpeed: 30,
         loop: true
     });
 
-    // Navbar Scroll Effect
-    window.addEventListener('scroll', function() {
-        const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+    // Cuộn mượt khi click menu
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                const offset = 70;
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+            }
+        });
     });
 </script>
 </body>
