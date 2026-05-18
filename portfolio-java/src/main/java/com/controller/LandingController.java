@@ -26,7 +26,7 @@ public class LandingController {
     @GetMapping("/landing")
     public String landingPage(@AuthenticationPrincipal OAuth2User oAuth2User, Model model) {
         addUserToModel(oAuth2User, model);
-        return "landing";
+        return "landing-grid";
     }
 
     private void addUserToModel(OAuth2User oAuth2User, Model model) {
