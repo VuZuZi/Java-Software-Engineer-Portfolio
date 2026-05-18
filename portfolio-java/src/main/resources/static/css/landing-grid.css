@@ -218,8 +218,6 @@ body {
 
 .grid-menu a {
     display: block;
-    padding: 1rem 1.5rem;
-    color: #555;
     text-decoration: none;
     font-weight: 500;
     border-left: 3px solid transparent;
@@ -249,6 +247,72 @@ body {
     bottom: 0;
     width: 3px;
     background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ===== SIDEBAR - USER INFO & NAV (Bootstrap-like) ===== */
+.sidebar {
+    background: white;
+    min-height: 100vh;
+    border-radius: 0;
+}
+
+.user-info-sidebar {
+    padding: 0.5rem 1rem;
+}
+
+.user-info-sidebar .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(102, 126, 234, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.user-name-sidebar {
+    font-weight: 700;
+    margin-top: 0.5rem;
+    color: #2d3748;
+}
+
+.user-email-sidebar {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.role-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
+    color: #4a5568;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+}
+
+.nav.flex-column .nav-link {
+    color: #4b5563;
+    padding: 0.6rem 1rem;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav.flex-column .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.nav.flex-column .nav-link:hover {
+    background: #f8fafc;
+    color: #667eea;
+    border-left-color: #667eea;
+    padding-left: 1.4rem;
+}
+
+.nav.flex-column .nav-link.active {
+    background: rgba(102, 126, 234, 0.08);
+    color: #667eea;
+    border-left-color: #667eea;
+    font-weight: 600;
 }
 
 /* ===== CONTENT AREA ===== */
@@ -398,7 +462,49 @@ body {
 .skill-badge:hover {
     background: #667eea;
     color: white;
-    transform: scale(1.05);
+}
+
+/* ===== PROFILE DETAILS (Guest card) ===== */
+.profile-details {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.profile-details .detail-item {
+    padding: 6px 0;
+    color: #475569;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
+
+.profile-details .detail-item a {
+    color: #334155;
+    text-decoration: none;
+}
+
+.profile-details .detail-item a:hover {
+    text-decoration: underline;
+}
+
+/* Prevent phone/email from wrapping onto next line in narrow sidebar */
+.profile-details .detail-item a,
+.profile-details .detail-item strong,
+.profile-details .detail-item i {
+    white-space: nowrap;
+}
+
+.profile-details .detail-item strong {
+    margin-right: 0.25rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+transform: scale(1.05);
 }
 
 /* CTA Section */
@@ -519,6 +625,7 @@ body {
     .brand-title {
         font-size: 1rem;
     }
+
     .menu-content-wrapper {
         grid-template-columns: 200px 1fr;
     }

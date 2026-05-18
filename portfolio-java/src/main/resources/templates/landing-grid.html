@@ -24,16 +24,16 @@
     <!-- ================= GRID CONTAINER ================= -->
     <div class="grid-container">
 
-<!--        &lt;!&ndash; ================= BRAND SECTION ================= &ndash;&gt;-->
-<!--        <div class="brand-section">-->
-<!--            <div class="brand-content">-->
-<!--                <div class="brand-logo">-->
-<!--                    <i class="fas fa-rocket"></i>-->
-<!--                </div>-->
-<!--                <h1 class="brand-name">Đoàn Đình Vũ</h1>-->
-<!--                <p class="brand-title">Java Developer • Backend Engineer</p>-->
-<!--            </div>-->
-<!--        </div>-->
+        <!--        &lt;!&ndash; ================= BRAND SECTION ================= &ndash;&gt;-->
+        <!--        <div class="brand-section">-->
+        <!--            <div class="brand-content">-->
+        <!--                <div class="brand-logo">-->
+        <!--                    <i class="fas fa-rocket"></i>-->
+        <!--                </div>-->
+        <!--                <h1 class="brand-name">Đoàn Đình Vũ</h1>-->
+        <!--                <p class="brand-title">Java Developer • Backend Engineer</p>-->
+        <!--            </div>-->
+        <!--        </div>-->
 
         <!-- ================= HEADER ================= -->
         <header class="grid-header">
@@ -41,9 +41,7 @@
                 <a th:href="@{${#authorization.expression('isAuthenticated()')} ? '/dashboard' : '/'}"
                     class="header-brand">
                     <i sec:authorize="isAnonymous()" class="fas fa-rocket"></i>
-                    <img sec:authorize="isAuthenticated()" th:src="${#authentication.principal.attributes['picture']}"
-                        class="header-avatar" alt="Avatar" />
-                    <span>Đoàn Đình Vũ</span>
+                    <span>Portfilio Vũ.DD</span>
                 </a>
                 <div class="header-auth">
                     <a sec:authorize="isAnonymous()" href="/oauth2/authorization/google" class="btn btn-danger">
@@ -74,15 +72,87 @@
         <!-- ================= MENU & CONTENT WRAPPER ================= -->
         <div class="menu-content-wrapper">
 
-            <!-- ================= SIDEBAR MENU ================= -->
+            <!-- ================= SIDEBAR MENU (Bootstrap-like) ================= -->
             <aside class="grid-menu">
-                <ul>
-                    <li><a href="#home" class="active"><i class="fas fa-home me-2"></i>Trang chủ</a></li>
-                    <li><a href="#services"><i class="fas fa-cogs me-2"></i>Dịch vụ</a></li>
-                    <li><a href="#projects"><i class="fas fa-project-diagram me-2"></i>Dự án</a></li>
-                    <li><a href="#skills"><i class="fas fa-code me-2"></i>Kỹ năng</a></li>
-                    <li><a href="#contact"><i class="fas fa-envelope me-2"></i>Liên hệ</a></li>
-                </ul>
+                <div class="sidebar p-3">
+
+                    <!-- Logged-in user info -->
+                    <div class="user-info-sidebar text-center" th:if="${user != null}">
+                        <img src="https://lh3.googleusercontent.com/a/ACg8ocLGBuhf95sDUbnO0l6mf8y7VRGhKx1mLHgJBW9rXNers35qipA=s96-c"
+                            class="avatar" alt="Avatar">
+                        <div class="user-name-sidebar" th:text="${user.name}">Đoàn Đình Vũ</div>
+                        <div class="user-email-sidebar text-muted small" th:text="${user.email}">user@example.com</div>
+                        <div class="role-badge mt-2" th:if="${user.role == 'ADMIN'}">
+                            <i class="fas fa-shield-alt me-1"></i> Quản trị viên
+                        </div>
+                        <div class="role-badge mt-2" th:if="${user.role != 'ADMIN'}">
+                            <i class="fas fa-user me-1"></i> Thành viên
+                        </div>
+                    </div>
+
+                    <!-- Guest info -->
+                    <div class="user-info-sidebar text-center" th:if="${user == null}">
+                        <img src="https://lh3.googleusercontent.com/a/ACg8ocLGBuhf95sDUbnO0l6mf8y7VRGhKx1mLHgJBW9rXNers35qipA=s96-c"
+                            class="avatar" alt="Avatar">
+                        <div class="user-name-sidebar">Vũ Đoàn Đình</div>
+                        <div class="role-badge mt-2">
+                            <i class="fas fa-shield-alt me-1"></i> Admin
+                        </div>
+                        <div class="profile-details mt-2 text-start">
+                            <ul class="list-unstyled mb-0">
+                                <li class="detail-item"><i
+                                        class="fas fa-venus-mars me-2 text-secondary"></i><strong>Gender:</strong> Male
+                                </li>
+                                <li class="detail-item"><i
+                                        class="fas fa-birthday-cake me-2 text-secondary"></i><strong>Age:</strong> 25
+                                </li>
+                                <li class="detail-item"><i class="fas fa-phone me-2 text-secondary"></i><a
+                                        href="tel:0799077222">0799077222</a></li>
+                                <li class="detail-item"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                                        href="mailto:markdoan38@gmail.com">markdoan38@gmail.com</a></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="user-email-sidebar text-muted small">Chưa đăng nhập</div> -->
+                    </div>
+
+                    <ul class="nav flex-column mt-4">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#home">
+                                <i class="fas fa-tachometer-alt me-2"></i> Introduction
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#services">
+                                <i class="fas fa-project-diagram me-2"></i> Service
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#projects">
+                                <i class="fas fa-code me-2"></i> Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#skills">
+                                <i class="fas fa-code me-2"></i> Skills
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact">
+                                <i class="fas fa-user me-2"></i> Contact
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact">
+                                <i class="fas fa-comments me-2"></i> Tin nhắn
+                            </a>
+                        </li>
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                            <a class="nav-link" href="/admin">
+                                <i class="fas fa-shield-alt me-2"></i> Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </aside>
 
             <!-- ================= MAIN CONTENT ================= -->
