@@ -1,0 +1,28 @@
+body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .btn-google {
+            background-color: #DB4437;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-google:hover {
+            background-color: #c23321;
+            transform: scale(1.05);
+            color: white;
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }

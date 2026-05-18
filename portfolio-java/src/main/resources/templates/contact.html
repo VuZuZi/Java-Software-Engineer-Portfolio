@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}">
+    <title>Liên hệ - Portfolio Platform</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header (currentPage='contact')}"></div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- LEFT COLUMN: GROUPED MESSAGES BY SUBJECT -->
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-white rounded-top-4 p-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        <span th:if="${isAdmin}">Tin nhắn nhận được</span>
+                        <span th:unless="${isAdmin}">Tin nhắn đã gửi</span>
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="refreshMessages()" title="Làm mới">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0" style="height: 70vh; overflow-y: auto;" id="messagesContainer">
+                    <div th:if="${groupedMessages != null and !groupedMessages.empty}">
+                        <div th:each="group : ${groupedMessages}" class="message-group mb-2">
+                            <div class="message-item p-3 border-bottom"
+                                 style="cursor: pointer;"
+                                 th:attr="data-subject=${group.subject}"
+                                 onclick="showConversationBySubject(this)">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0">
+                                        <!-- Avatar của người khác trong cuộc trò chuyện (không phải user đang đăng nhập) -->
+                                        <div th:if="${group.otherPartyEmail == 'markdoan38@gmail.com'}"
+                                             class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <img th:if="${adminUser != null and adminUser.avatarUrl != null}"
+                                                 th:src="${adminUser.avatarUrl}"
+                                                 class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+                                            <i th:unless="${adminUser != null and adminUser.avatarUrl != null}"
+                                               class="fas fa-user-tie text-success" style="font-size: 28px;"></i>
+                                        </div>
+                                        <div th:unless="${group.otherPartyEmail == 'markdoan38@gmail.com'}"
+                                             class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i class="fas fa-user-circle text-primary" style="font-size: 28px;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="mb-1 fw-semibold text-truncate" style="max-width: 160px;"
+                                                th:text="${group.subject}">Tiêu đề</h6>
+                                            <small class="text-muted ms-2 flex-shrink-0"
+                                                   th:text="${#temporals.format(group.lastMessage.sentAt, 'dd/MM/yy HH:mm')}">12/05</small>
+                                        </div>
+                                        <!-- Hiển thị tin nhắn cuối cùng -->
+                                        <p class="small text-muted mb-1 text-truncate" style="max-width: 220px;">
+                                            <span th:if="${group.lastMessage.email == user.email}">
+                                                <i class="fas fa-reply text-primary me-1"></i> Bạn:
+                                            </span>
+                                            <span th:unless="${group.lastMessage.email == user.email}">
+                                                <i class="fas fa-reply-all text-success me-1"></i>
+                                                <span th:text="${group.lastMessage.name}">Người gửi</span>:
+                                            </span>
+                                            <span th:text="${group.lastMessage.content != null and group.lastMessage.content.length() > 40 ? group.lastMessage.content.substring(0, 40) + '...' : group.lastMessage.content}">Nội dung</span>
+                                        </p>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary small">
+                                                <i class="fas fa-comment-dots me-1"></i>
+                                                <span th:text="${group.messageCount}">0</span> tin nhắn
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${groupedMessages == null or groupedMessages.empty}" class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Chưa có tin nhắn nào.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: CONVERSATION DETAIL AND REPLY FORM -->
+        <div class="col-md-7 col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-white rounded-top-4 p-4">
+                    <h3 class="mb-0 text-center" id="chatHeaderTitle">
+                        <i class="fas fa-envelope text-primary me-2"></i>Liên hệ với tôi
+                    </h3>
+                    <p class="text-center text-muted mt-2" id="chatHeaderSub">Chọn một cuộc trò chuyện để xem chi tiết</p>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- CHAT MESSAGES DISPLAY AREA -->
+                    <div id="chatMessagesArea" class="mb-4" style="max-height: 400px; overflow-y: auto; display: none;">
+                        <div class="d-flex flex-column" id="chatMessagesContainer"></div>
+                    </div>
+
+                    <!-- REPLY FORM - Style Facebook -->
+                    <div id="replyForm" style="display: none;">
+                        <div class="facebook-chat-input">
+                            <form id="replyFormSubmit" class="w-100">
+                                <input type="hidden" name="email" th:value="${user.email}" id="replyEmail">
+                                <input type="hidden" name="name" th:value="${user.name}" id="replyName">
+                                <input type="hidden" name="receiverEmail" value="markdoan38@gmail.com" id="replyReceiverEmail">
+                                <input type="hidden" name="status" value="UNREAD">
+                                <input type="hidden" name="emailRe" value="markdoan38@gmail.com">
+                                <input type="hidden" name="subject" id="replySubject">
+
+                                <div class="input-wrapper">
+                                    <textarea name="content" id="replyContent"
+                                              placeholder="Viết tin nhắn..."
+                                              rows="1"></textarea>
+                                    <button type="submit" class="send-btn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- NEW MESSAGE FORM -->
+                    <div id="newMessageForm">
+                        <div th:unless="${isAdmin}" class="alert alert-info mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span th:text="${user.name}"></span> (<span th:text="${user.email}"></span>)
+                        </div>
+
+                        <form id="contactForm">
+                            <input type="hidden" name="email" th:value="${user.email}">
+                            <input type="hidden" name="name" th:value="${user.name}">
+                            <input type="hidden" name="receiverEmail" value="markdoan38@gmail.com">
+                            <input type="hidden" name="status" value="UNREAD">
+                            <input type="hidden" name="emailRe" value="markdoan38@gmail.com">
+
+                            <div class="mb-2">
+                                <input type="text" name="subject" id="subject" class="form-control"
+                                       placeholder="Tiêu đề" required
+                                       style="border-radius: 20px; background-color: #f0f2f5; border: none; padding: 10px 15px;">
+                            </div>
+
+                            <div class="facebook-chat-input">
+                                <div class="input-wrapper">
+                                    <textarea name="content" id="content"
+                                              placeholder="Viết tin nhắn..."
+                                              rows="1" required></textarea>
+                                    <button type="submit" class="send-btn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var messagesData = /*[[${displayMessages}]]*/ [];
+    var currentUserEmail = /*[[${user.email}]]*/ '';
+    var isAdmin = /*[[${isAdmin}]]*/ false;
+    var adminEmail = 'markdoan38@gmail.com';
+    var adminUser = /*[[${adminUser}]]*/ null;
+    var groupedMessagesData = /*[[${groupedMessages}]]*/ [];
+    /*]]>*/
+</script>
+
+<style>
+    /* Facebook-like chat input styles */
+    .facebook-chat-input {
+        background-color: #f0f2f5;
+        border-radius: 20px;
+        padding: 4px 8px;
+        transition: all 0.2s ease;
+    }
+
+    .facebook-chat-input:focus-within {
+        background-color: #e4e6e9;
+    }
+
+    .input-wrapper {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .input-wrapper textarea {
+        flex: 1;
+        background: transparent;
+        border: none;
+        resize: none;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        outline: none;
+        max-height: 100px;
+        min-height: 38px;
+        line-height: 1.4;
+    }
+
+    .input-wrapper textarea::placeholder {
+        color: #65676b;
+    }
+
+    .send-btn {
+        background: transparent;
+        border: none;
+        color: #0d6efd;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .send-btn:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+        transform: scale(1.05);
+    }
+
+    .send-btn:active {
+        transform: scale(0.95);
+    }
+
+    .message-item {
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        cursor: pointer;
+    }
+
+    .message-item:hover {
+        border-left-color: #0d6efd;
+        background-color: #f8f9fa !important;
+        transform: translateX(2px);
+    }
+
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+
+    .bg-opacity-10 {
+        --bs-bg-opacity: 0.1;
+    }
+
+    .toast {
+        min-width: 250px;
+        animation: slideInUp 0.3s ease;
+    }
+
+    @keyframes slideInUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    #chatMessagesContainer {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bg-success.bg-opacity-10 {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+
+    .bg-primary.bg-opacity-10 {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .bg-secondary.bg-opacity-10 {
+        background-color: rgba(108, 117, 125, 0.1) !important;
+    }
+
+    #chatMessagesArea {
+        scroll-behavior: smooth;
+        border-radius: 12px;
+        background-color: #ffffff;
+    }
+
+    /* Chat bubble animations */
+    .d-flex.mb-3 {
+        animation: fadeInMessage 0.3s ease;
+    }
+
+    @keyframes fadeInMessage {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Scrollbar styling */
+    #chatMessagesArea::-webkit-scrollbar,
+    #messagesContainer::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #chatMessagesArea::-webkit-scrollbar-track,
+    #messagesContainer::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    #chatMessagesArea::-webkit-scrollbar-thumb,
+    #messagesContainer::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+
+    #chatMessagesArea::-webkit-scrollbar-thumb:hover,
+    #messagesContainer::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Message badge styles */
+    .badge i {
+        font-size: 0.7rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .message-item .text-truncate {
+            max-width: 120px !important;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<script>
+    // Auto resize for new message textarea
+    const contentTextarea = document.getElementById('content');
+    if (contentTextarea) {
+        contentTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        contentTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('contactForm').dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+        });
+    }
+
+    // Auto resize for reply textarea
+    const replyTextarea = document.getElementById('replyContent');
+    if (replyTextarea) {
+        replyTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        replyTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('replyFormSubmit').dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+        });
+    }
+</script>
+
+<script>
+    var currentSelectedSubject = null;
+    var currentConversationMessages = [];
+
+    function showConversationBySubject(element) {
+        var subject = element.getAttribute('data-subject');
+        currentSelectedSubject = subject;
+
+        currentConversationMessages = messagesData.filter(function(msg) {
+            return msg.subject === subject;
+        });
+
+        currentConversationMessages.sort(function(a, b) {
+            return new Date(a.sentAt) - new Date(b.sentAt);
+        });
+
+        document.getElementById('chatHeaderTitle').innerHTML = '<i class="fas fa-comment-dots text-primary me-2"></i>' + escapeHtml(subject);
+        document.getElementById('chatHeaderSub').innerHTML = 'Đối thoại (' + currentConversationMessages.length + ' tin nhắn)';
+
+        var chatArea = document.getElementById('chatMessagesArea');
+        var chatContainer = document.getElementById('chatMessagesContainer');
+        var replyForm = document.getElementById('replyForm');
+        var newMessageForm = document.getElementById('newMessageForm');
+
+        chatArea.style.display = 'block';
+        replyForm.style.display = 'block';
+        newMessageForm.style.display = 'none';
+        chatContainer.innerHTML = '';
+
+        renderChatMessages(currentConversationMessages, chatContainer);
+
+        document.getElementById('replySubject').value = subject;
+
+        var lastMessage = currentConversationMessages[currentConversationMessages.length - 1];
+        if (lastMessage) {
+            var receiverForReply = lastMessage.email === currentUserEmail ? lastMessage.receiverEmail : lastMessage.email;
+            document.getElementById('replyReceiverEmail').value = receiverForReply;
+        }
+
+        if (isAdmin) {
+            markConversationAsRead(subject);
+        }
+    }
+
+    function renderChatMessages(messages, container) {
+        messages.forEach(function(msg) {
+            var isFromMe = (msg.email === currentUserEmail);
+            var isFromAdmin = msg.email === adminEmail;
+
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'd-flex mb-3 ' + (isFromMe ? 'justify-content-end' : 'justify-content-start');
+
+            var avatarHtml = '';
+            if (!isFromMe) {
+                if (isFromAdmin) {
+                    if (adminUser && adminUser.avatarUrl) {
+                        avatarHtml = '<img src="' + adminUser.avatarUrl + '" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">';
+                    } else {
+                        avatarHtml = '<div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;"><i class="fas fa-user-tie text-success"></i></div>';
+                    }
+                } else {
+                    avatarHtml = '<div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;"><i class="fas fa-user-circle text-primary"></i></div>';
+                }
+            }
+
+            var bubbleClass = isFromMe ? 'bg-primary text-white' : 'bg-light text-dark';
+            var timeClass = isFromMe ? 'text-white-50' : 'text-muted';
+            var senderName = isFromMe ? 'Bạn' : (isFromAdmin ? 'Admin' : msg.name);
+
+            messageDiv.innerHTML = `
+                <div class="d-flex ${isFromMe ? 'flex-row-reverse' : 'flex-row'}" style="max-width: 80%;">
+                    ${!isFromMe ? avatarHtml : ''}
+                    <div>
+                        <div class="${bubbleClass} rounded-3 p-3 shadow-sm">
+                            <div class="fw-semibold small mb-1">${escapeHtml(senderName)}</div>
+                            <div class="mb-1">${escapeHtml(msg.content || '')}</div>
+                            <div class="${timeClass} small" style="font-size: 0.7rem;">
+                                ${msg.sentAt ? new Date(msg.sentAt).toLocaleString('vi-VN') : ''}
+                            </div>
+                        </div>
+                    </div>
+                    ${isFromMe ? avatarHtml : ''}
+                </div>
+            `;
+            container.appendChild(messageDiv);
+        });
+
+        // Scroll to bottom
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        var chatArea = document.getElementById('chatMessagesArea');
+        if (chatArea) {
+            setTimeout(function() {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+        }
+    }
+
+    function addNewMessageToChat(newMessage) {
+        var chatContainer = document.getElementById('chatMessagesContainer');
+        var isFromMe = (newMessage.email === currentUserEmail);
+        var isFromAdmin = newMessage.email === adminEmail;
+
+        var messageDiv = document.createElement('div');
+        messageDiv.className = 'd-flex mb-3 ' + (isFromMe ? 'justify-content-end' : 'justify-content-start');
+
+        var avatarHtml = '';
+        if (!isFromMe) {
+            if (isFromAdmin) {
+                if (adminUser && adminUser.avatarUrl) {
+                    avatarHtml = '<img src="' + adminUser.avatarUrl + '" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">';
+                } else {
+                    avatarHtml = '<div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;"><i class="fas fa-user-tie text-success"></i></div>';
+                }
+            } else {
+                avatarHtml = '<div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;"><i class="fas fa-user-circle text-primary"></i></div>';
+            }
+        }
+
+        var bubbleClass = isFromMe ? 'bg-primary text-white' : 'bg-light text-dark';
+        var timeClass = isFromMe ? 'text-white-50' : 'text-muted';
+        var senderName = isFromMe ? 'Bạn' : (isFromAdmin ? 'Admin' : newMessage.name);
+        var sentTime = new Date().toLocaleString('vi-VN');
+
+        messageDiv.innerHTML = `
+            <div class="d-flex ${isFromMe ? 'flex-row-reverse' : 'flex-row'}" style="max-width: 80%;">
+                ${!isFromMe ? avatarHtml : ''}
+                <div>
+                    <div class="${bubbleClass} rounded-3 p-3 shadow-sm">
+                        <div class="fw-semibold small mb-1">${escapeHtml(senderName)}</div>
+                        <div class="mb-1">${escapeHtml(newMessage.content || '')}</div>
+                        <div class="${timeClass} small" style="font-size: 0.7rem;">
+                            ${sentTime}
+                        </div>
+                    </div>
+                </div>
+                ${isFromMe ? avatarHtml : ''}
+            </div>
+        `;
+        chatContainer.appendChild(messageDiv);
+
+        // Scroll to bottom
+        scrollToBottom();
+
+        // Add message to current array
+        currentConversationMessages.push(newMessage);
+
+        // Update message count in header
+        document.getElementById('chatHeaderSub').innerHTML = 'Đối thoại (' + currentConversationMessages.length + ' tin nhắn)';
+    }
+
+    function markConversationAsRead(subject) {
+        var unreadMessages = currentConversationMessages.filter(function(msg) {
+            return msg.status !== 'READ' && msg.email !== adminEmail;
+        });
+
+        unreadMessages.forEach(function(msg) {
+            fetch('/admin/messages/' + msg.id + '/read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }).catch(function(error) {
+                console.error('Error marking message as read:', error);
+            });
+        });
+    }
+
+    function cancelReply() {
+        document.getElementById('replyForm').style.display = 'none';
+        document.getElementById('newMessageForm').style.display = 'block';
+        document.getElementById('chatMessagesArea').style.display = 'none';
+        document.getElementById('chatHeaderTitle').innerHTML = '<i class="fas fa-envelope text-primary me-2"></i>Liên hệ với tôi';
+        document.getElementById('chatHeaderSub').innerHTML = 'Chọn một cuộc trò chuyện để xem chi tiết';
+        currentSelectedSubject = null;
+        currentConversationMessages = [];
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function refreshMessages() {
+        fetch('/contact/messages', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(messages) {
+            messagesData = messages;
+            updateGroupedMessagesList(messages);
+
+            if (currentSelectedSubject) {
+                var updatedMessages = messages.filter(function(msg) {
+                    return msg.subject === currentSelectedSubject;
+                });
+                if (updatedMessages.length > 0) {
+                    currentConversationMessages = updatedMessages;
+                    currentConversationMessages.sort(function(a, b) {
+                        return new Date(a.sentAt) - new Date(b.sentAt);
+                    });
+                    var chatContainer = document.getElementById('chatMessagesContainer');
+                    if (chatContainer) {
+                        chatContainer.innerHTML = '';
+                        renderChatMessages(currentConversationMessages, chatContainer);
+                    }
+                }
+            }
+        })
+        .catch(function(error) { console.error('Error loading messages:', error); });
+    }
+
+    function updateGroupedMessagesList(messages) {
+        var container = document.getElementById('messagesContainer');
+        if (!container) return;
+
+        var groups = groupMessagesBySubject(messages);
+
+        if (!groups || groups.length === 0) {
+            container.innerHTML = '<div class="text-center py-5"><i class="fas fa-inbox fa-3x text-muted mb-3"></i><p class="text-muted">Chưa có tin nhắn nào.</p></div>';
+            return;
+        }
+
+        var html = '';
+        groups.forEach(function(group) {
+            var sentDate = group.lastMessage.sentAt ? new Date(group.lastMessage.sentAt).toLocaleString('vi-VN', {
+                day: '2-digit', month: '2-digit', year: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            }) : 'Không rõ';
+
+            var previewContent = group.lastMessage.content && group.lastMessage.content.length > 40 ?
+                group.lastMessage.content.substring(0, 40) + '...' : (group.lastMessage.content || 'Không có nội dung');
+
+            var isFromAdmin = group.lastMessage.email === adminEmail;
+            var isFromMe = group.lastMessage.email === currentUserEmail;
+
+            // Hiển thị người gửi tin nhắn cuối cùng
+            var senderText = '';
+            if (isFromMe) {
+                senderText = '<i class="fas fa-reply text-primary me-1"></i> Bạn: ';
+            } else if (isFromAdmin) {
+                senderText = '<i class="fas fa-reply-all text-success me-1"></i> Admin: ';
+            } else {
+                senderText = '<i class="fas fa-reply-all text-secondary me-1"></i> ' + escapeHtml(group.lastMessage.name) + ': ';
+            }
+
+            html += `
+                <div class="message-group mb-2">
+                    <div class="message-item p-3 border-bottom" style="cursor: pointer;"
+                         data-subject="${escapeHtml(group.subject)}"
+                         onclick="showConversationBySubject(this)">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle ${group.otherPartyEmail === adminEmail ? 'bg-success' : 'bg-primary'} bg-opacity-10 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    ${group.otherPartyEmail === adminEmail ?
+                                        (adminUser && adminUser.avatarUrl ?
+                                            '<img src="' + adminUser.avatarUrl + '" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">' :
+                                            '<i class="fas fa-user-tie text-success" style="font-size: 28px;"></i>') :
+                                        '<i class="fas fa-user-circle text-primary" style="font-size: 28px;"></i>'}
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6 class="mb-1 fw-semibold text-truncate" style="max-width: 160px;">${escapeHtml(group.subject)}</h6>
+                                    <small class="text-muted ms-2 flex-shrink-0">${sentDate}</small>
+                                </div>
+                                <p class="small text-muted mb-1 text-truncate" style="max-width: 220px;">
+                                    ${senderText}${escapeHtml(previewContent)}
+                                </p>
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary small">
+                                        <i class="fas fa-comment-dots me-1"></i> ${group.messageCount} tin nhắn
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function groupMessagesBySubject(messages) {
+        var groups = {};
+
+        messages.forEach(function(msg) {
+            if (!groups[msg.subject]) {
+                // Xác định người khác trong cuộc trò chuyện (không phải user hiện tại)
+                var otherPartyEmail = msg.email === currentUserEmail ? msg.receiverEmail : msg.email;
+                groups[msg.subject] = {
+                    subject: msg.subject,
+                    messages: [],
+                    lastMessage: msg,
+                    messageCount: 0,
+                    otherPartyEmail: otherPartyEmail
+                };
+            }
+            groups[msg.subject].messages.push(msg);
+            groups[msg.subject].messageCount++;
+
+            var currentLast = groups[msg.subject].lastMessage;
+            if (new Date(msg.sentAt) > new Date(currentLast.sentAt)) {
+                groups[msg.subject].lastMessage = msg;
+            }
+        });
+
+        var groupList = Object.values(groups);
+        groupList.sort(function(a, b) {
+            return new Date(b.lastMessage.sentAt) - new Date(a.lastMessage.sentAt);
+        });
+
+        return groupList;
+    }
+
+    function showToast(message, type) {
+        var toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-' + (type === 'success' ? 'success' : 'danger') + ' border-0 position-fixed bottom-0 end-0 m-3';
+        toast.setAttribute('role', 'alert');
+        toast.style.zIndex = '9999';
+        toast.innerHTML = '<div class="d-flex"><div class="toast-body"><i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + ' me-2"></i>' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+        document.body.appendChild(toast);
+        var bsToast = new bootstrap.Toast(toast, { delay: 2000 });
+        bsToast.show();
+        setTimeout(function() { if (toast) toast.remove(); }, 2500);
+    }
+
+    // AJAX submit for reply form
+    document.getElementById('replyFormSubmit')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var content = document.getElementById('replyContent').value.trim();
+        var subject = document.getElementById('replySubject').value;
+
+        if (!content) {
+            showToast('Vui lòng nhập nội dung trả lời!', 'error');
+            return false;
+        }
+
+        var formData = new FormData(this);
+        var submitBtn = this.querySelector('button[type="submit"]');
+        var originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang gửi...';
+        submitBtn.disabled = true;
+
+        fetch('/contact/send', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.getElementById('replyContent').value = '';
+                showToast(data.message, 'success');
+
+                var newMessage = {
+                    email: currentUserEmail,
+                    name: document.getElementById('replyName').value,
+                    content: content,
+                    subject: subject,
+                    sentAt: new Date().toISOString(),
+                    receiverEmail: document.getElementById('replyReceiverEmail').value
+                };
+                addNewMessageToChat(newMessage);
+                refreshMessages();
+            } else {
+                showToast(data.message || 'Có lỗi xảy ra!', 'error');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            showToast('Lỗi kết nối!', 'error');
+        })
+        .finally(function() {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+
+        return false;
+    });
+
+    // AJAX submit for new message form
+    document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var subject = document.getElementById('subject').value.trim();
+        var content = document.getElementById('content').value.trim();
+
+        if (!subject || !content) {
+            showToast('Vui lòng nhập đầy đủ tiêu đề và nội dung!', 'error');
+            return false;
+        }
+
+        var formData = new FormData(this);
+        var submitBtn = this.querySelector('button[type="submit"]');
+        var originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang gửi...';
+        submitBtn.disabled = true;
+
+        fetch('/contact/send', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.getElementById('subject').value = '';
+                document.getElementById('content').value = '';
+                document.getElementById('content').style.height = 'auto';
+                showToast(data.message, 'success');
+                refreshMessages();
+
+                if (currentSelectedSubject === subject) {
+                    var newMessage = {
+                        email: currentUserEmail,
+                        name: document.querySelector('input[name="name"]').value,
+                        content: content,
+                        subject: subject,
+                        sentAt: new Date().toISOString(),
+                        receiverEmail: 'markdoan38@gmail.com'
+                    };
+                    addNewMessageToChat(newMessage);
+                }
+            } else {
+                showToast(data.message || 'Có lỗi xảy ra!', 'error');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            showToast('Lỗi kết nối!', 'error');
+        })
+        .finally(function() {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+
+        return false;
+    });
+
+    var autoRefreshInterval;
+    function startAutoRefresh() {
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(function() {
+            refreshMessages();
+        }, 30000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateGroupedMessagesList(messagesData);
+        startAutoRefresh();
+
+        // Initialize textarea auto-resize for reply textarea
+        if (replyTextarea) {
+            replyTextarea.style.height = 'auto';
+            replyTextarea.style.height = Math.min(replyTextarea.scrollHeight, 100) + 'px';
+        }
+    });
+</script>
+
+<div th:replace="~{fragments/header :: scripts}"></div>
+
+</body>
+</html>
