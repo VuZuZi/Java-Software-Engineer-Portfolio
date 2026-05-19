@@ -61,11 +61,7 @@ public class MessageController {
         boolean isAdmin = ADMIN_EMAIL.equals(userEmail);
         List<Message> displayMessages;
 
-        if (isAdmin) {
-            displayMessages = messageService.getMessagesByReceiverEmail(ADMIN_EMAIL);
-        } else {
-            displayMessages = messageService.getMessagesByEmail(userEmail);
-        }
+        displayMessages = messageService.getMessagesForParticipant(userEmail);
 
         model.addAttribute("displayMessages", displayMessages);
 
@@ -103,20 +99,23 @@ public class MessageController {
                 continue;
             }
 
-            if (!groups.containsKey(subject)) {
+            String otherPartyEmail = msg.getEmail().equals(currentUserEmail) ? msg.getReceiverEmail() : msg.getEmail();
+            String groupKey = subject + "|" + otherPartyEmail;
+
+            if (!groups.containsKey(groupKey)) {
                 // Xac dinh nguoi khac trong cuoc tro chuyen
-                String otherPartyEmail = msg.getEmail().equals(currentUserEmail) ? msg.getReceiverEmail() : msg.getEmail();
 
                 Map<String, Object> group = new HashMap<>();
+                group.put("key", groupKey);
                 group.put("subject", subject);
                 group.put("messages", new ArrayList<Message>());
                 group.put("messageCount", 0);
                 group.put("unreadCount", 0);
                 group.put("otherPartyEmail", otherPartyEmail);
-                groups.put(subject, group);
+                groups.put(groupKey, group);
             }
 
-            Map<String, Object> group = groups.get(subject);
+            Map<String, Object> group = groups.get(groupKey);
             @SuppressWarnings("unchecked")
             List<Message> groupMessages = (List<Message>) group.get("messages");
             groupMessages.add(msg);
@@ -163,18 +162,42 @@ public class MessageController {
 
         String userEmail = oAuth2User.getAttribute("email");
         String userName = oAuth2User.getAttribute("name");
+        boolean isAdmin = ADMIN_EMAIL.equals(userEmail);
+        String subject = message.getSubject() == null ? "" : message.getSubject().trim();
+        String content = message.getContent() == null ? "" : message.getContent().trim();
+
+        if (subject.isEmpty() || content.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Vui long nhap tieu de va mo ta truoc khi gui!");
+            return response;
+        }
+
+        String receiverEmail = ADMIN_EMAIL;
+        if (isAdmin) {
+            receiverEmail = message.getReceiverEmail() == null ? "" : message.getReceiverEmail().trim();
+            if (receiverEmail.isEmpty() || ADMIN_EMAIL.equals(receiverEmail)) {
+                response.put("success", false);
+                response.put("message", "Khong xac dinh duoc nguoi nhan tin nhan!");
+                return response;
+            }
+        }
 
         message.setEmail(userEmail);
         message.setName(userName);
-        message.setReceiverEmail(ADMIN_EMAIL);
+        message.setSubject(subject);
+        message.setContent(content);
+        message.setReceiverEmail(receiverEmail);
         message.setSentAt(LocalDateTime.now());
         message.setStatus(MessageStatus.UNREAD);
-        message.setEmailRe(ADMIN_EMAIL);
+        message.setEmailRe(receiverEmail);
 
-        messageService.saveMessage(message);
+        Message savedMessage = messageService.saveMessage(message);
 
         response.put("success", true);
         response.put("message", "Tin nhan da duoc gui thanh cong!");
+        response.put("id", savedMessage.getId());
+        response.put("sentAt", savedMessage.getSentAt());
+        response.put("receiverEmail", savedMessage.getReceiverEmail());
         return response;
     }
 
@@ -191,11 +214,7 @@ public class MessageController {
             return List.of();
         }
         String userEmail = oAuth2User.getAttribute("email");
-        if (ADMIN_EMAIL.equals(userEmail)) {
-            return messageService.getMessagesByReceiverEmail(ADMIN_EMAIL);
-        } else {
-            return messageService.getMessagesByEmail(userEmail);
-        }
+        return messageService.getMessagesForParticipant(userEmail);
     }
 
     /**

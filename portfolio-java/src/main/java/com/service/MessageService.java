@@ -53,6 +53,16 @@ public class MessageService {
     }
 
     /**
+     * Retrieves all messages where the email is either sender or receiver.
+     *
+     * @param email participant email address
+     * @return list of messages involving the participant, newest first
+     */
+    public List<Message> getMessagesForParticipant(String email) {
+        return messageRepository.findByParticipantEmailOrderBySentAtDesc(email);
+    }
+
+    /**
      * Saves a new message to the database.
      *
      * @param message the message entity to save

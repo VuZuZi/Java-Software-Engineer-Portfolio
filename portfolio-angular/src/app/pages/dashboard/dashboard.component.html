@@ -1,0 +1,74 @@
+<div class="dashboard-shell">
+  <aside class="dashboard-sidebar">
+    <div class="user-info-sidebar panel-on-dark">
+      <img [src]="profile.avatarUrl" class="avatar" alt="Avatar">
+      <div class="user-name-sidebar">{{ profile.name }}</div>
+      <div class="user-email-sidebar">{{ profile.email }}</div>
+      <div class="role-badge"><i class="fas fa-shield-alt me-1"></i> Quản trị viên</div>
+    </div>
+
+    <nav class="dashboard-nav">
+      <a routerLink="/dashboard" class="active"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+      <a routerLink="/"><i class="fas fa-house me-2"></i>Landing</a>
+      <a routerLink="/skills"><i class="fas fa-code me-2"></i>Kỹ năng</a>
+      <a routerLink="/contact"><i class="fas fa-comments me-2"></i>Tin nhắn</a>
+      <a routerLink="/login"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a>
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <section class="dashboard-header">
+      <div>
+        <p class="eyebrow">Portfolio Platform</p>
+        <h1>Dashboard</h1>
+      </div>
+      <a routerLink="/" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i>Về trang chủ</a>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div>
+          <h6>Dự án tham gia</h6>
+          <strong>{{ stats.projectsCount }}</strong>
+        </div>
+        <i class="fas fa-project-diagram text-primary"></i>
+      </article>
+      <article class="stat-card">
+        <div>
+          <h6>Kỹ năng đã có</h6>
+          <strong>{{ stats.skillsCount }}</strong>
+        </div>
+        <i class="fas fa-code text-success"></i>
+      </article>
+      <article class="stat-card">
+        <div>
+          <h6>Match trung bình</h6>
+          <strong>{{ stats.avgMatch }}%</strong>
+        </div>
+        <i class="fas fa-chart-line text-info"></i>
+      </article>
+    </section>
+
+    <section class="dashboard-card">
+      <header>
+        <h2><i class="fas fa-list-check me-2"></i>Dự án phù hợp với bạn</h2>
+      </header>
+      <div class="project-list">
+        @for (project of projects; track project.name) {
+          <article class="project-row">
+            <div>
+              <h3>{{ project.name }}</h3>
+              <p>{{ project.description }}</p>
+              <div class="badge-line">
+                @for (skill of project.skills; track skill) {
+                  <span class="badge-skill">{{ skill }}</span>
+                }
+              </div>
+            </div>
+            <span class="status-badge">{{ project.status }}</span>
+          </article>
+        }
+      </div>
+    </section>
+  </main>
+</div>

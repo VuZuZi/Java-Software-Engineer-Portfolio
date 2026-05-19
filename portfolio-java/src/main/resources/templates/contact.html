@@ -10,14 +10,14 @@
 
 <div class="container py-5">
     <div class="row g-4">
-        <!-- LEFT COLUMN: GROUPED MESSAGES BY SUBJECT -->
+        <!-- LEFT COLUMN: GROUPED CONVERSATIONS -->
         <div class="col-md-5 col-lg-4">
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-header bg-white rounded-top-4 p-3 border-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-comments text-primary me-2"></i>
-                        <span th:if="${isAdmin}">Tin nhắn nhận được</span>
-                        <span th:unless="${isAdmin}">Tin nhắn đã gửi</span>
+                        <span th:if="${isAdmin}">Danh sách tin nhắn</span>
+                        <span th:unless="${isAdmin}">Tin nhắn với Admin</span>
                     </h5>
                     <button class="btn btn-sm btn-outline-primary" onclick="refreshMessages()" title="Làm mới">
                         <i class="fas fa-sync-alt"></i>
@@ -29,6 +29,7 @@
                             <div class="message-item p-3 border-bottom"
                                  style="cursor: pointer;"
                                  th:attr="data-subject=${group.subject}"
+                                 th:data-other-party="${group.otherPartyEmail}"
                                  onclick="showConversationBySubject(this)">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0">
@@ -125,10 +126,14 @@
                     </div>
 
                     <!-- NEW MESSAGE FORM -->
-                    <div id="newMessageForm">
+                    <div id="newMessageForm" th:unless="${isAdmin}">
                         <div th:unless="${isAdmin}" class="alert alert-info mb-3">
                             <i class="fas fa-info-circle me-2"></i>
-                            <span th:text="${user.name}"></span> (<span th:text="${user.email}"></span>)
+                            Bạn đang gửi tin nhắn đến Admin
+                            <strong>markdoan38@gmail.com</strong>
+                            <div class="small mt-1">
+                                Người gửi: <span th:text="${user.name}"></span> (<span th:text="${user.email}"></span>)
+                            </div>
                         </div>
 
                         <form id="contactForm">
@@ -139,15 +144,17 @@
                             <input type="hidden" name="emailRe" value="markdoan38@gmail.com">
 
                             <div class="mb-2">
+                                <label for="subject" class="form-label fw-semibold">Tiêu đề</label>
                                 <input type="text" name="subject" id="subject" class="form-control"
                                        placeholder="Tiêu đề" required
                                        style="border-radius: 20px; background-color: #f0f2f5; border: none; padding: 10px 15px;">
                             </div>
 
+                            <label for="content" class="form-label fw-semibold">Mô tả</label>
                             <div class="facebook-chat-input">
                                 <div class="input-wrapper">
                                     <textarea name="content" id="content"
-                                              placeholder="Viết tin nhắn..."
+                                              placeholder="Nhập mô tả hoặc nội dung bạn muốn gửi tới Admin..."
                                               rows="1" required></textarea>
                                     <button type="submit" class="send-btn">
                                         <i class="fas fa-paper-plane"></i>
@@ -155,6 +162,11 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+
+                    <div id="adminEmptyState" th:if="${isAdmin}" class="text-center py-5 text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p class="mb-0">Chọn một cuộc trò chuyện bên trái để xem và trả lời tin nhắn.</p>
                     </div>
                 </div>
             </div>
@@ -385,14 +397,21 @@
 
 <script>
     var currentSelectedSubject = null;
+    var currentSelectedOtherParty = null;
     var currentConversationMessages = [];
 
     function showConversationBySubject(element) {
         var subject = element.getAttribute('data-subject');
+        var otherPartyEmail = element.getAttribute('data-other-party');
         currentSelectedSubject = subject;
+        currentSelectedOtherParty = otherPartyEmail;
 
         currentConversationMessages = messagesData.filter(function(msg) {
-            return msg.subject === subject;
+            if (msg.subject !== subject) return false;
+            if (!otherPartyEmail) return true;
+
+            var messageOtherParty = msg.email === currentUserEmail ? msg.receiverEmail : msg.email;
+            return messageOtherParty === otherPartyEmail;
         });
 
         currentConversationMessages.sort(function(a, b) {
@@ -406,10 +425,12 @@
         var chatContainer = document.getElementById('chatMessagesContainer');
         var replyForm = document.getElementById('replyForm');
         var newMessageForm = document.getElementById('newMessageForm');
+        var adminEmptyState = document.getElementById('adminEmptyState');
 
         chatArea.style.display = 'block';
         replyForm.style.display = 'block';
-        newMessageForm.style.display = 'none';
+        if (newMessageForm) newMessageForm.style.display = 'none';
+        if (adminEmptyState) adminEmptyState.style.display = 'none';
         chatContainer.innerHTML = '';
 
         renderChatMessages(currentConversationMessages, chatContainer);
@@ -553,11 +574,15 @@
 
     function cancelReply() {
         document.getElementById('replyForm').style.display = 'none';
-        document.getElementById('newMessageForm').style.display = 'block';
+        var newMessageForm = document.getElementById('newMessageForm');
+        var adminEmptyState = document.getElementById('adminEmptyState');
+        if (newMessageForm) newMessageForm.style.display = 'block';
+        if (adminEmptyState) adminEmptyState.style.display = 'block';
         document.getElementById('chatMessagesArea').style.display = 'none';
         document.getElementById('chatHeaderTitle').innerHTML = '<i class="fas fa-envelope text-primary me-2"></i>Liên hệ với tôi';
         document.getElementById('chatHeaderSub').innerHTML = 'Chọn một cuộc trò chuyện để xem chi tiết';
         currentSelectedSubject = null;
+        currentSelectedOtherParty = null;
         currentConversationMessages = [];
     }
 
@@ -580,7 +605,11 @@
 
             if (currentSelectedSubject) {
                 var updatedMessages = messages.filter(function(msg) {
-                    return msg.subject === currentSelectedSubject;
+                    if (msg.subject !== currentSelectedSubject) return false;
+                    if (!currentSelectedOtherParty) return true;
+
+                    var messageOtherParty = msg.email === currentUserEmail ? msg.receiverEmail : msg.email;
+                    return messageOtherParty === currentSelectedOtherParty;
                 });
                 if (updatedMessages.length > 0) {
                     currentConversationMessages = updatedMessages;
@@ -636,6 +665,7 @@
                 <div class="message-group mb-2">
                     <div class="message-item p-3 border-bottom" style="cursor: pointer;"
                          data-subject="${escapeHtml(group.subject)}"
+                         data-other-party="${escapeHtml(group.otherPartyEmail || '')}"
                          onclick="showConversationBySubject(this)">
                         <div class="d-flex">
                             <div class="flex-shrink-0">
@@ -675,10 +705,12 @@
         var groups = {};
 
         messages.forEach(function(msg) {
-            if (!groups[msg.subject]) {
+            var otherPartyEmail = msg.email === currentUserEmail ? msg.receiverEmail : msg.email;
+            var groupKey = (msg.subject || '') + '|' + (otherPartyEmail || '');
+
+            if (!groups[groupKey]) {
                 // Xác định người khác trong cuộc trò chuyện (không phải user hiện tại)
-                var otherPartyEmail = msg.email === currentUserEmail ? msg.receiverEmail : msg.email;
-                groups[msg.subject] = {
+                groups[groupKey] = {
                     subject: msg.subject,
                     messages: [],
                     lastMessage: msg,
@@ -686,12 +718,12 @@
                     otherPartyEmail: otherPartyEmail
                 };
             }
-            groups[msg.subject].messages.push(msg);
-            groups[msg.subject].messageCount++;
+            groups[groupKey].messages.push(msg);
+            groups[groupKey].messageCount++;
 
-            var currentLast = groups[msg.subject].lastMessage;
+            var currentLast = groups[groupKey].lastMessage;
             if (new Date(msg.sentAt) > new Date(currentLast.sentAt)) {
-                groups[msg.subject].lastMessage = msg;
+                groups[groupKey].lastMessage = msg;
             }
         });
 

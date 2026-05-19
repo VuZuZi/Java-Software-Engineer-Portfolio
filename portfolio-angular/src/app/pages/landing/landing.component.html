@@ -1,0 +1,236 @@
+<div class="grid-container">
+  <header class="grid-header" [class.scrolled]="isScrolled">
+    <div class="header-container">
+      <a routerLink="/" class="header-brand">
+        <i class="fas fa-rocket"></i>
+        <span>{{ profile.brand }}</span>
+      </a>
+
+      <div class="header-auth">
+        <button type="button" class="btn btn-outline-primary language-toggle" (click)="toggleLanguage()">
+          <i class="fas fa-globe"></i>
+          <span>{{ language === 'vi' ? 'EN' : 'VI' }}</span>
+        </button>
+        <a routerLink="/login" class="btn btn-danger">
+          <i class="fab fa-google me-1"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu-content-wrapper">
+    <aside class="grid-menu" aria-label="Sidebar navigation">
+      <div class="sidebar p-3">
+        <div class="sidebar-section-title">{{ t('Hồ sơ', 'Profile') }}</div>
+        <div class="user-info-sidebar">
+          <img [src]="profile.avatarUrl" class="avatar" alt="Avatar">
+          <div class="user-meta-sidebar">
+            <div class="user-name-sidebar">{{ profile.name }}</div>
+            <div class="user-email-sidebar">{{ profile.title }}</div>
+          </div>
+          <div class="role-badge mt-2">
+            <i class="fas fa-shield-alt me-1"></i> Admin
+          </div>
+          <div class="profile-details">
+            <ul class="list-unstyled mb-0">
+              <li class="detail-item">
+                <i class="fas fa-venus-mars me-2 text-secondary"></i>
+                <strong>{{ t('Giới tính:', 'Gender:') }}</strong>
+                <span>{{ t('Nam', 'Male') }}</span>
+              </li>
+              <li class="detail-item">
+                <i class="fas fa-birthday-cake me-2 text-secondary"></i>
+                <strong>{{ t('Tuổi:', 'Age:') }}</strong>25
+              </li>
+              <li class="detail-item"><i class="fas fa-phone me-2 text-secondary"></i><a
+                  [href]="'tel:' + profile.phone">{{ profile.phone }}</a></li>
+              <li class="detail-item"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                  [href]="'mailto:' + profile.email">{{ profile.email }}</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sidebar-section-title mt-4">Menu</div>
+        <ul class="nav nav-pills flex-column sidebar-nav">
+          @for (section of sections; track section) {
+          <li class="nav-item">
+            <button type="button" class="nav-link" [class.active]="activeSection === section"
+              (click)="scrollTo(section)">
+              <i class="fas me-2" [ngClass]="{
+                  'fa-house': section === 'home',
+                  'fa-briefcase': section === 'services',
+                  'fa-diagram-project': section === 'projects',
+                  'fa-screwdriver-wrench': section === 'skills',
+                  'fa-address-book': section === 'contact'
+                }"></i>
+              <span>
+                {{ section === 'home' ? t('Giới thiệu', 'Introduction') :
+                section === 'services' ? t('Dịch vụ', 'Service') :
+                section === 'projects' ? t('Dự án', 'Project') :
+                section === 'skills' ? t('Kỹ năng', 'Skills') : t('Liên hệ', 'Contact') }}
+              </span>
+            </button>
+          </li>
+          }
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contact">
+              <i class="fas fa-comments me-2"></i><span>{{ t('Tin nhắn', 'Messages') }}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="grid-content">
+      <section id="home" class="hero">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-7">
+              <div class="badge bg-light text-dark mb-3 px-3 py-2">
+                <i class="fas fa-code me-1"></i> {{ t('Đang tìm kiếm cơ hội mới', 'Open for opportunities') }}
+              </div>
+              <h1 class="display-4 fw-bold mb-3">
+                {{ t('Xin chào, tôi là', 'Hello, I am a') }} <span class="text-highlight">{{ typedText }}</span>
+              </h1>
+              <p class="lead mb-3">
+                {{ t('Java Developer với hơn 2 năm kinh nghiệm, đã tham gia hai dự án tại FPT Software.', 'Java
+                Developer with over 2 years of experience, having worked on two projects at FPT Software.') }}
+              </p>
+              <p class="mb-3">
+                {{ t('Tôi có nền tảng từ CodeGym và FPT University, cùng kiến thức vững về OOP, Spring Boot và RESTful
+                APIs.', 'I have a strong educational background from CodeGym and FPT University, with solid knowledge of
+                OOP, Spring Boot and RESTful APIs.') }}
+              </p>
+              <div class="d-flex gap-3 flex-wrap mt-4">
+                <button type="button" class="btn btn-primary btn-lg" (click)="scrollTo('projects')">
+                  <i class="fas fa-project-diagram me-2"></i>{{ t('Xem dự án', 'View projects') }}
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-lg" (click)="scrollTo('contact')">
+                  <i class="fas fa-envelope me-2"></i>{{ t('Liên hệ', 'Contact') }}
+                </button>
+              </div>
+            </div>
+            <div class="col-lg-5 text-center mt-4 mt-lg-0">
+              <div class="profile-image-wrapper">
+                <img [src]="profile.avatarUrl" alt="Developer" class="img-fluid rounded-circle shadow-lg profile-image">
+                <div class="online-status mt-3">
+                  <i class="fas fa-circle text-success"></i> {{ t('Sẵn sàng làm việc', 'Available for work') }}
+                </div>
+                <div class="tech-stack mt-3">
+                  <span class="badge bg-primary me-1">Java</span>
+                  <span class="badge bg-primary me-1">Spring Boot</span>
+                  <span class="badge bg-primary me-1">Node.js</span>
+                  <span class="badge bg-primary">REST API</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="py-5 bg-light">
+        <div class="container">
+          <div class="section-title">
+            <h2>{{ t('Dịch vụ & Chuyên môn', 'Services & Expertise') }}</h2>
+            <div class="underline"></div>
+            <p class="text-muted mt-3">{{ t('Những năng lực tôi có thể đóng góp cho dự án', 'Capabilities I can
+              contribute to your project') }}</p>
+          </div>
+          <div class="row g-4">
+            @for (service of services; track service.title) {
+            <div class="col-md-4">
+              <div class="service-card h-100">
+                <div class="service-icon"><i [class]="service.icon"></i></div>
+                <h4>{{ service.title }}</h4>
+                <p class="text-muted">{{ service.description }}</p>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" class="py-5">
+        <div class="section-title">
+          <h2>{{ t('Dự án nổi bật', 'Featured Projects') }}</h2>
+          <div class="underline"></div>
+          <p class="text-muted mt-3">{{ t('Những dự án tôi đã tham gia', 'Projects I have contributed to') }}</p>
+        </div>
+        <div class="row g-4 content-row">
+          @for (project of projects; track project.name) {
+          <div class="col-md-4">
+            <article class="project-card h-100">
+              <div class="project-img" [style.background-image]="'url(' + project.image + ')'"></div>
+              <div class="p-3">
+                <h5>{{ project.name }}</h5>
+                <p class="text-muted small">{{ project.description }}</p>
+              </div>
+            </article>
+          </div>
+          }
+        </div>
+      </section>
+
+      <section id="skills" class="py-5 bg-light">
+        <div class="section-title">
+          <h2>{{ t('Kỹ năng & Công nghệ', 'Skills & Technologies') }}</h2>
+          <div class="underline"></div>
+          <p class="text-muted mt-3">{{ t('Các công nghệ tôi sử dụng hằng ngày', 'Technologies I use in daily
+            development') }}</p>
+        </div>
+        <div class="text-center content-row">
+          @for (skill of skills; track skill) {
+          <span class="skill-badge">{{ skill }}</span>
+          }
+        </div>
+      </section>
+
+      <section id="contact" class="cta-section">
+        <div class="landing-contact-panel">
+          <h3>{{ t('tôi đã sẵn sàng cho dự án tiếp theo!', 'I am ready for the next project!') }}</h3>
+          <p class="mb-4">{{ t('Hãy liên hệ với tôi để cùng thảo luận về cơ hội hợp tác', 'Contact me to discuss
+            collaboration opportunities') }}</p>
+          <a [href]="'mailto:' + profile.email" class="btn btn-light btn-lg">
+            <i class="fas fa-envelope me-2"></i>{{ t('Liên hệ ngay', 'Contact now') }}
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="grid-footer">
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h5><i class="fas fa-rocket me-2"></i>Portfolio Platform</h5>
+          <p class="text-muted">{{ t('Giới thiệu dự án, kỹ năng và kinh nghiệm làm việc của tôi.', 'Introducing my
+            projects, skills, and work experience.') }}</p>
+        </div>
+        <div class="footer-section">
+          <h5>{{ t('Liên kết nhanh', 'Quick links') }}</h5>
+          <ul>
+            <li><button type="button" (click)="scrollTo('home')">{{ t('Trang chủ', 'Home') }}</button></li>
+            <li><button type="button" (click)="scrollTo('projects')">{{ t('Dự án', 'Projects') }}</button></li>
+            <li><button type="button" (click)="scrollTo('skills')">{{ t('Kỹ năng', 'Skills') }}</button></li>
+            <li><button type="button" (click)="scrollTo('contact')">{{ t('Liên hệ', 'Contact') }}</button></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h5>{{ t('Kết nối', 'Connect') }}</h5>
+          <div class="social-icons">
+            <a href="#" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          </div>
+          <p class="mt-3 text-muted">
+            <i class="fas fa-envelope me-2"></i> {{ profile.email }}<br>
+            <i class="fas fa-map-marker-alt me-2"></i> {{ profile.location }}
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Portfolio Platform. Built by Java Developer</p>
+      </div>
+    </div>
+  </footer>
+</div>

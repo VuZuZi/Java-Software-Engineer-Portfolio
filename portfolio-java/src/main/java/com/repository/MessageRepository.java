@@ -51,6 +51,15 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByReceiverEmailOrderBySentAtDesc(String receiverEmail);
 
     /**
+     * Finds all messages where a user is either sender or receiver.
+     *
+     * @param email the participant email
+     * @return list of messages involving the participant
+     */
+    @Query("SELECT m FROM Message m WHERE m.email = :email OR m.receiverEmail = :email ORDER BY m.sentAt DESC")
+    List<Message> findByParticipantEmailOrderBySentAtDesc(@Param("email") String email);
+
+    /**
      * Finds all messages ordered by sent time descending.
      *
      * @return list of all messages
