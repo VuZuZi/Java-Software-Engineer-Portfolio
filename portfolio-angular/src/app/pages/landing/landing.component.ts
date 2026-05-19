@@ -11,6 +11,27 @@ import { profile, projects, services, skills } from '../../shared/portfolio-data
 
 type Language = 'vi' | 'en';
 
+type LocalizedString = {
+  vi: string;
+  en: string;
+};
+
+interface Experience {
+  title: string;
+  period: string;
+  technology: string;
+  aisupport: string;
+  description: LocalizedString | string;
+  contribute: string;
+  company: string;
+}
+
+interface Education {
+  title: LocalizedString | string;
+  period: string;
+  institution: string;
+}
+
 @Component({
   selector: 'app-landing',
   imports: [CommonModule, FormsModule, RouterLink, HeaderAuthComponent],
@@ -21,6 +42,106 @@ export class LandingComponent implements OnInit, OnDestroy {
   readonly services = services;
   projects = projects;
   skills = skills.map((skill) => skill.name);
+  activeSkillTab = 'experience';
+  skillProgress = [
+    { name: 'Java', value: 85, colorClass: 'bg-primary' },                    // Xanh dương
+    { name: 'Spring Boot', value: 80, colorClass: 'bg-success' },             // Xanh lá
+    { name: 'Angular', value: 75, colorClass: 'bg-danger' },                  // Đỏ
+    { name: 'MySQL', value: 80, colorClass: 'bg-warning text-dark' },         // Vàng (chữ đen)
+    { name: 'AWS', value: 65, colorClass: 'bg-info text-dark' },              // Xanh nhạt (chữ đen)
+    { name: 'Git', value: 80, colorClass: 'bg-secondary' },                   // Xám
+    { name: 'Jira', value: 80, colorClass: 'bg-dark' },                       // Đen
+    { name: 'Teamwork', value: 85, colorClass: 'bg-primary bg-gradient' }     // Xanh dương gradient
+  ];
+
+  // Experiences với đa ngôn ngữ
+  experiences: Experience[] = [
+    {
+      title: 'Developer1',
+      period: '05/2025 - 04/2025',
+      technology: 'Java, Spring Boot, Angular, MySQL, AWS, jira, git, teamwork, postman, netbeans, vs code',
+      aisupport: 'ChatGPT, codevista, Stack Overflow',
+      description: {
+        vi: 'Nâng cấp công nghệ cho hệ thống ngân hàng, cải thiện hiệu suất và bảo mật, đồng thời hỗ trợ triển khai trên AWS.',
+        en: 'Upgrading technology for banking system, improving performance and security, while supporting AWS deployment.'
+      },
+      contribute: 'backend, frontend, database, testing, deployment',
+      company: 'Core Technology Upgrade Project – Oursource Bank Japan (FPT Software)'
+    },
+    {
+      title: 'Developer1',
+      period: '05/2025 - 01/2026',
+      technology: 'Java, Spring Boot, Angular, MySQL, AWS, jira, git, teamwork',
+      aisupport: 'ChatGPT, codevista, Stack Overflow',
+      description: {
+        vi: 'Phát triển ứng dụng đặt hàng tại Nhật Bản, đảm bảo chất lượng và hiệu suất cao.',
+        en: 'Developing ordering application in Japan, ensuring high quality and performance.'
+      },
+      contribute: 'backend, frontend, database, testing, deployment',
+      company: 'Oursource Delivery Management Platform for Japan Market – FPT Software'
+    },
+    {
+      title: 'Freelance Developer',
+      period: '01/2023 - 05/2023',
+      technology: 'JavaScript, React, Node.js, MongoDB, Git',
+      aisupport: 'ChatGPT, codevista, Stack Overflow, deepseek',
+      description: {
+        vi: 'Phát triển hệ thống quản lý dân cư tại khu đô thị FPT City.',
+        en: 'Developing resident management system at FPT City urban area.'
+      },
+      contribute: 'backend, frontend, database, testing, deployment',
+      company: 'Upwork / Freelancer'
+    },
+    {
+      title: 'My Project',
+      period: '01/2026 - 05/2026',
+      technology: 'nodejs, express, react, mongodb, git',
+      aisupport: 'ChatGPT, codevista, Stack Overflow, deepseek',
+      description: {
+        vi: 'Phát triển hệ thống kết nối tình nguyện viên CareConnect.',
+        en: 'Developing CareConnect volunteer connection system.'
+      },
+      contribute: 'backend, frontend, database, testing, deployment',
+      company: 'FPT University / Team Project'
+    }
+  ];
+
+  // Education với đa ngôn ngữ
+  education: Education[] = [
+    {
+      title: {
+        vi: 'Cử nhân Công nghệ Thông tin',
+        en: 'Bachelor of Information Technology'
+      },
+      period: '2020 - 2026',
+      institution: 'FPT University'
+    },
+    {
+      title: {
+        vi: 'Chứng chỉ Java Spring Boot',
+        en: 'Java Spring Boot Certification'
+      },
+      period: '2022 - 2023',
+      institution: 'CodeGym Academy'
+    },
+    {
+      title: {
+        vi: 'Chứng chỉ IELTS 4.5',
+        en: 'IELTS 4.5 Certification'
+      },
+      period: '2020',
+      institution: 'IELTS Fighter - Mr. Hoa'
+    },
+    {
+      title: {
+        vi: 'Chứng chỉ tiếng Nhật N4',
+        en: 'N4 Japanese Certification'
+      },
+      period: '2025',
+      institution: 'FPT University'
+    }
+  ];
+
   readonly sections = ['home', 'services', 'projects', 'skills', 'contact'];
 
   activeSection = 'home';
@@ -160,7 +281,36 @@ export class LandingComponent implements OnInit, OnDestroy {
       this.showToast(response.message || this.t('Tin nhắn đã gửi tới admin.', 'Message sent to admin.'));
     });
   }
+  // Lấy description theo ngôn ngữ hiện tại
+  getDescription(item: any): string {
+    if (!item.description) return '';
+    return typeof item.description === 'string'
+      ? item.description
+      : item.description[this.language];
+  }
 
+  // Lấy title cho education
+  getEducationTitle(item: any): string {
+    if (!item.title) return '';
+    return typeof item.title === 'string'
+      ? item.title
+      : item.title[this.language];
+  }
+
+  // Format technology array
+  getTechnologyList(technology: string): string[] {
+    return technology?.split(',').map(t => t.trim()) || [];
+  }
+
+  // Format AI support list
+  getAISupportList(aisupport: string): string[] {
+    return aisupport?.split(',').map(ai => ai.trim()) || [];
+  }
+
+  // Format contribute list
+  getContributeList(contribute: string): string[] {
+    return contribute?.split(',').map(c => c.trim()) || [];
+  }
   private showToast(message: string): void {
     this.toast = message;
     window.setTimeout(() => {

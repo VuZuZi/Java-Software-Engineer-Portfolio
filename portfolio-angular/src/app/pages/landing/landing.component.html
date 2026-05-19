@@ -44,8 +44,7 @@
 
         <div class="sidebar-section-title mt-4">Menu</div>
         <ul class="nav nav-pills flex-column sidebar-nav">
-          @for (section of sections; track section) {
-          <li class="nav-item">
+          <li class="nav-item" *ngFor="let section of sections">
             <button type="button" class="nav-link" [class.active]="activeSection === section"
               (click)="scrollTo(section)">
               <i class="fas me-2" [ngClass]="{
@@ -63,7 +62,6 @@
               </span>
             </button>
           </li>
-          }
           <li class="nav-item">
             <a class="nav-link" routerLink="/contact">
               <i class="fas fa-comments me-2"></i><span>{{ t('Tin nhắn', 'Messages') }}</span>
@@ -82,7 +80,7 @@
                 <i class="fas fa-code me-1"></i> {{ t('Đang tìm kiếm cơ hội mới', 'Open for opportunities') }}
               </div>
               <h1 class="display-4 fw-bold mb-3">
-                {{ t('Xin chào, tôi là', 'Hello, I am a') }} <span class="text-highlight">{{ typedText }}</span>
+                {{ t('Xin chào, tôi là', 'Hello, I am ') }} <span class="text-highlight">{{ typedText }}</span>
               </h1>
               <p class="lead mb-3">
                 {{ t('Java Developer với hơn 2 năm kinh nghiệm, đã tham gia hai dự án tại FPT Software.', 'Java
@@ -129,15 +127,13 @@
               contribute to your project') }}</p>
           </div>
           <div class="row g-4">
-            @for (service of services; track service.title) {
-            <div class="col-md-4">
+            <div class="col-md-4" *ngFor="let service of services">
               <div class="service-card h-100">
                 <div class="service-icon"><i [class]="service.icon"></i></div>
                 <h4>{{ service.title }}</h4>
                 <p class="text-muted">{{ service.description }}</p>
               </div>
             </div>
-            }
           </div>
         </div>
       </section>
@@ -149,8 +145,7 @@
           <p class="text-muted mt-3">{{ t('Những dự án tôi đã tham gia', 'Projects I have contributed to') }}</p>
         </div>
         <div class="row g-4 content-row">
-          @for (project of projects; track project.name) {
-          <div class="col-md-4">
+          <div class="col-md-4" *ngFor="let project of projects">
             <article class="project-card h-100">
               <div class="project-img" [style.background-image]="'url(' + project.image + ')'"></div>
               <div class="p-3">
@@ -159,21 +154,175 @@
               </div>
             </article>
           </div>
-          }
         </div>
       </section>
 
+
       <section id="skills" class="py-5 bg-light">
-        <div class="section-title">
-          <h2>{{ t('Kỹ năng & Công nghệ', 'Skills & Technologies') }}</h2>
-          <div class="underline"></div>
-          <p class="text-muted mt-3">{{ t('Các công nghệ tôi sử dụng hằng ngày', 'Technologies I use in daily
-            development') }}</p>
-        </div>
-        <div class="text-center content-row">
-          @for (skill of skills; track skill) {
-          <span class="skill-badge">{{ skill }}</span>
-          }
+        <div class="container">
+          <!-- Section Title -->
+          <div class="section-title text-center mb-5">
+            <h2 class="display-6 fw-bold">{{ t('Kỹ năng & Kinh nghiệm', 'Skills & Experience') }}</h2>
+            <div class="underline mx-auto" style="width: 80px; height: 4px; background-color: #0d6efd;"></div>
+            <p class="text-muted mt-3">{{ t('Những kỹ năng và kinh nghiệm làm việc của tôi', 'My skills and work
+              experience') }}</p>
+          </div>
+
+          <div class="row g-4 align-items-stretch">
+            <!-- Left Side: Skills -->
+
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                  <h3 class="h4 mb-4 fw-bold">
+                    <i class="bi bi-code-slash me-2 text-primary"></i>
+                    {{ t('Kỹ năng chuyên môn', 'Professional Skills') }}
+                  </h3>
+                  <div class="row">
+                    <div class="col-12 col-md-6 col-lg-12" *ngFor="let skill of skillProgress">
+                      <div class="skill-item mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="fw-semibold mb-0">{{ skill.name }}</h6>
+                          <span class="badge bg-primary rounded-pill"
+                            style="background-color: #0d6efd !important; color: white !important;">
+                            {{ skill.value }}%
+                          </span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #e9ecef; border-radius: 10px;">
+                          <div class="progress-bar {{ skill.colorClass }}" role="progressbar"
+                            [style.width.%]="skill.value" [attr.aria-valuenow]="skill.value" aria-valuemin="0"
+                            aria-valuemax="100" style="border-radius: 10px;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Experience & Education Tabs -->
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                  <!-- Tab Navigation -->
+                  <ul class="nav nav-pills justify-content-center gap-3 mb-4" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-semibold px-4 py-2 rounded-pill"
+                        [class.active]="activeSkillTab === 'experience'" (click)="activeSkillTab = 'experience'"
+                        type="button">
+                        <i class="bi bi-briefcase-fill me-2"></i>
+                        {{ t('Kinh nghiệm', 'Experience') }}
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-semibold px-4 py-2 rounded-pill"
+                        [class.active]="activeSkillTab === 'education'" (click)="activeSkillTab = 'education'"
+                        type="button">
+                        <i class="bi bi-mortarboard-fill me-2"></i>
+                        {{ t('Giáo dục', 'Education') }}
+                      </button>
+                    </li>
+                  </ul>
+
+                  <!-- Tab Content -->
+                  <div class="tab-content pt-2">
+                    <!-- Experience Tab -->
+                    <div *ngIf="activeSkillTab === 'experience'">
+                      <div class="row g-4">
+                        <div class="col-12" *ngFor="let item of experiences">
+                          <div class="experience-card p-3 rounded-3 bg-white border h-100 shadow-sm">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
+                              <h5 class="fw-bold text-primary mb-1">{{ item.title }}</h5>
+                              <!-- Fix: Period badge with better styling -->
+                              <span class="badge period-badge">
+                                <i class="bi bi-calendar3 me-1"></i> {{ item.period }}
+                              </span>
+                            </div>
+                            <h6 class="text-muted mb-3">
+                              <i class="bi bi-building me-1"></i> {{ item.company }}
+                            </h6>
+
+                            <!-- Technology Tags -->
+                            <div class="mb-2" *ngIf="item.technology">
+                              <i class="bi bi-tags me-1 text-primary"></i>
+                              <span class="fw-semibold small">{{ t('Công nghệ:', 'Technology:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-light text-dark border"
+                                  *ngFor="let tech of getTechnologyList(item.technology)">
+                                  {{ tech }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- AI Support -->
+                            <div class="mb-2" *ngIf="item.aisupport">
+                              <i class="bi bi-robot me-1 text-success"></i>
+                              <span class="fw-semibold small">{{ t('Hỗ trợ AI:', 'AI Support:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-success bg-opacity-10 text-success"
+                                  *ngFor="let ai of getAISupportList(item.aisupport)">
+                                  {{ ai }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- Contribution -->
+                            <div class="mb-2" *ngIf="item.contribute">
+                              <i class="bi bi-person-workspace me-1 text-info"></i>
+                              <span class="fw-semibold small">{{ t('Đóng góp:', 'Contribution:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-info bg-opacity-10 text-info"
+                                  *ngFor="let role of getContributeList(item.contribute)">
+                                  {{ role }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mt-2 pt-1">
+                              <i class="bi bi-chat-left-text me-1 text-warning"></i>
+                              <span class="fw-semibold small">{{ t('Mô tả:', 'Description:') }}</span>
+                              <p class="text-muted small mt-1 mb-0">
+                                {{ getDescription(item) }}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Education Tab - FIXED: Sử dụng getEducationTitle() -->
+                    <div *ngIf="activeSkillTab === 'education'">
+                      <div class="row g-4">
+                        <div class="col-md-6" *ngFor="let item of education">
+                          <div class="education-card p-3 rounded-3 bg-white border h-100 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                              <!-- QUAN TRỌNG: Gọi getEducationTitle để hiển thị đúng ngôn ngữ -->
+                              <h5 class="fw-bold text-primary mb-1">{{ getEducationTitle(item) }}</h5>
+                            </div>
+                            <p class="text-muted small mb-2">
+                              <i class="bi bi-calendar3 me-1"></i> {{ item.period }}
+                            </p>
+                            <hr class="my-2">
+                            <h6 class="mb-0">
+                              <i class="bi bi-backpack me-1"></i> {{ item.institution }}
+                            </h6>
+                            <div class="mt-2"
+                              *ngIf="getEducationTitle(item).includes('Chứng chỉ') || getEducationTitle(item).includes('Certification')">
+                              <span class="badge bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-patch-check-fill me-1"></i> {{ t('Chứng chỉ', 'Certified') }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

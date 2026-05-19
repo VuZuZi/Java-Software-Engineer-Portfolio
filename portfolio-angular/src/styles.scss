@@ -91,7 +91,7 @@ textarea {
 }
 
 .text-secondary {
-  color: #64748b !important;
+  color: #ffffff !important;
 }
 
 .bg-light {
@@ -566,16 +566,194 @@ textarea {
   background: #eff6ff;
 }
 
-.cta-section {
-  padding: 80px 40px;
-  color: white;
-  text-align: center;
-  background: linear-gradient(135deg, #2563eb, #0f766e);
+.skill {
+  display: block;
 }
 
-.cta-section h3 {
-  margin: 0 0 12px;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+.progress {
+  width: 100%;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.bg-warning {
+  background: #f59e0b;
+}
+
+.bg-danger {
+  background: #ef4444;
+}
+
+.bg-dark {
+  background: #0f172a;
+}
+
+.bg-info {
+  background: #0284c7;
+}
+
+.tabbed-panel {
+  padding: 24px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.border {
+  border: 1px solid #e2e8f0;
+}
+
+.tab-pill {
+  padding: 16px 20px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab-pill.active {
+  background: white;
+  color: #1f2937;
+  box-shadow: inset 0 -4px 0 #2f80ed;
+}
+
+.tab-content {
+  min-height: 260px;
+}
+
+.tab-pane {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tab-pane.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.border-2 {
+  border-width: 2px !important;
+}
+
+.rounded {
+  border-radius: 1rem;
+}
+
+.col-md-6,
+.col-sm-6,
+.col-lg-6 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 576px) {
+  .col-sm-6 {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 768px) {
+  .col-md-6 {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  .col-lg-6 {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}
+
+.text-primary {
+  color: #2f80ed !important;
+}
+
+.my-2 {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.border-primary {
+  border-color: #2f80ed !important;
+}
+
+.mb-5 {
+  margin-bottom: 32px;
+}
+
+.py-3 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.pb-5 {
+  padding-bottom: 32px;
+}
+
+.gx-4 {
+  gap: 16px;
+}
+
+.gy-5 {
+  row-gap: 32px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mb-3 {
+  margin-bottom: 12px;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.text-muted {
+  color: #64748b !important;
+}
+
+.row.g-5 {
+  gap: 32px;
+}
+
+.container {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.container-xxl {
+  width: min(1320px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.display-5 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
 }
 
 .grid-footer {
@@ -583,56 +761,56 @@ textarea {
   padding: 48px 40px 22px;
   color: white;
   background: #263241;
-}
 
-.footer-content {
-  width: min(1120px, 100%);
-  margin: 0 auto;
-}
+  .footer-content {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+  }
 
-.footer-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 36px;
-}
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px;
+  }
 
-.footer-section ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  .footer-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-.footer-section button,
-.footer-section a {
-  padding: 0;
-  color: rgba(255, 255, 255, 0.72);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  text-decoration: none;
-}
+  .footer-section button,
+  .footer-section a {
+    padding: 0;
+    color: rgba(255, 255, 255, 0.72);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+  }
 
-.social-icons {
-  display: flex;
-  gap: 12px;
-}
+  .social-icons {
+    display: flex;
+    gap: 12px;
+  }
 
-.social-icon {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  color: white !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 50%;
-}
+  .social-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50%;
+  }
 
-.footer-bottom {
-  margin-top: 32px;
-  padding-top: 18px;
-  color: rgba(255, 255, 255, 0.72);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  text-align: center;
+  .footer-bottom {
+    margin-top: 32px;
+    padding-top: 18px;
+    color: rgba(255, 255, 255, 0.72);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: center;
+  }
 }
 
 .dashboard-shell {
@@ -1225,4 +1403,83 @@ textarea {
   .conversation-item time {
     grid-column: 2;
   }
+}
+
+
+
+
+
+/* Fix cho period badge - không bị background che */
+.period-badge {
+  background-color: #e9ecef !important;
+  color: #495057 !important;
+  font-weight: 500;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge.bg-primary {
+  background-color: #0d6efd !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.nav-pills .nav-link:not(.active) {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.nav-pills .nav-link:not(.active):hover {
+  background-color: #e9ecef;
+  color: #0d6efd;
+}
+
+.progress {
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  border-radius: 10px;
+}
+
+.experience-card:hover,
+.education-card:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.badge.bg-light.text-dark {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+  font-weight: 500;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+}
+
+.badge.bg-success.bg-opacity-10 {
+  background-color: rgba(25, 135, 84, 0.15) !important;
+  color: #198754 !important;
+}
+
+.badge.bg-info.bg-opacity-10 {
+  background-color: rgba(13, 202, 240, 0.15) !important;
+  color: #0d6efd !important;
+}
+
+.badge.bg-warning.bg-opacity-10 {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  color: #ffc107 !important;
 }
