@@ -46,6 +46,24 @@ export type ApiMessage = {
   status?: string;
 };
 
+export type ApiConversationMessage = {
+  id?: number;
+  content?: string;
+  fromMe?: boolean;
+  name?: string;
+  time?: string;
+};
+
+export type ApiConversation = {
+  id?: string;
+  subject?: string;
+  sender?: string;
+  lastMessage?: string;
+  lastAt?: string;
+  unreadCount?: number;
+  messages?: ApiConversationMessage[];
+};
+
 export type DashboardResponse = {
   user: ApiUser;
   stats: {
@@ -58,7 +76,7 @@ export type DashboardResponse = {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) { }
 
   me(): Observable<ApiAuthResponse> {
     return this.http.get<ApiAuthResponse>('/api/auth/me', { withCredentials: true });
@@ -76,12 +94,22 @@ export class ApiService {
     return this.http.get<ApiSkill[]>('/api/skills', { withCredentials: true });
   }
 
-  messages(): Observable<ApiMessage[]> {
-    return this.http.get<ApiMessage[]>('/api/messages', { withCredentials: true });
+  conversations(): Observable<ApiConversation[]> {
+    return this.http.get<ApiConversation[]>('/api/messages/conversations', { withCredentials: true });
   }
 
-  sendMessage(payload: { subject: string; content: string; receiverEmail?: string }): Observable<{ success: boolean; message: string; data?: ApiMessage }> {
-    return this.http.post<{ success: boolean; message: string; data?: ApiMessage }>('/api/messages', payload, {
+  conversationById(conversationId: string): Observable<ApiConversation> {
+    return this.http.get<ApiConversation>(`/api/messages/conversation/${conversationId}`, { withCredentials: true });
+  }
+
+  markConversationAsRead(conversationId: string): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`/api/messages/conversation/${conversationId}/read`, null, {
+      withCredentials: true,
+    });
+  }
+
+  sendMessage(payload: { subject: string; content: string; receiverEmail?: string; conversationId?: string }): Observable<{ success: boolean; message: string; data?: ApiConversationMessage }> {
+    return this.http.post<{ success: boolean; message: string; data?: ApiConversationMessage }>('/api/messages/send', payload, {
       withCredentials: true,
     });
   }

@@ -1,216 +1,242 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { catchError, of } from 'rxjs';
-import { ApiMessage, ApiService } from '../../shared/api.service';
+import { RouterLink } from '@angular/router';
 import { HeaderAuthComponent } from '../../shared/header-auth.component';
-import { profile } from '../../shared/portfolio-data';
+import { ApiConversation, ApiConversationMessage, ApiService } from '../../shared/api.service';
+import { AuthService } from '../../core/auth.service';
+import { catchError, finalize, of } from 'rxjs';
 
-type Message = {
+interface Message {
+  id?: number;
+  content: string;
   fromMe: boolean;
   name: string;
-  content: string;
   time: string;
-};
+}
 
-type Conversation = {
+interface Conversation {
+  id: string;
   subject: string;
   sender: string;
-  email: string;
+  senderEmail?: string;
+  lastMessage: string;
   lastAt: string;
+  unreadCount: number;
   messages: Message[];
-};
-
-const defaultAdminConversation: Conversation = {
-  subject: 'Admin',
-  sender: 'Admin',
-  email: 'admin@example.com',
-  lastAt: new Date().toLocaleString('vi-VN'),
-  messages: [
-    {
-      fromMe: false,
-      name: 'Admin',
-      content: 'Xin chào! Đây là cuộc trò chuyện tạo sẵn với Admin.',
-      time: new Date().toLocaleString('vi-VN'),
-    },
-  ],
-};
+}
 
 @Component({
   selector: 'app-contact',
-  imports: [CommonModule, FormsModule, HeaderAuthComponent],
-  templateUrl: './contact.component.html',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, HeaderAuthComponent],
+  templateUrl: './contact.component.html'
 })
-export class ContactComponent implements OnInit {
-  readonly profile = profile;
-  conversations: Conversation[] = this.ensureAdminConversation([]);
-  selected: Conversation = defaultAdminConversation;
-  private selectedKey = this.conversationKey(this.selected);
+export class ContactComponent implements OnInit, OnDestroy {
+  conversations: Conversation[] = [];
+  selectedConversation: Conversation | null = null;
+  replyContent: string = '';
+  toast: string = '';
+  isLoading: boolean = false;
+  isTyping: boolean = false;
+  userEmail: string = '';
+  private typingTimeout: any;
 
-  newSubject = '';
-  newContent = '';
-  replyContent = '';
-  toast = '';
-
-  constructor(private readonly api: ApiService) { }
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {
+    this.loadUserEmail();
+  }
 
   ngOnInit(): void {
-    this.loadMessages();
+    this.loadConversations();
   }
 
-  selectConversation(conversation: Conversation): void {
-    this.selected = conversation;
-    this.selectedKey = this.conversationKey(conversation);
-    this.replyContent = '';
-  }
-
-  sendNewMessage(): void {
-    const subject = this.newSubject.trim();
-    const content = this.newContent.trim();
-    if (!subject || !content) {
-      this.showToast('Vui lòng nhập đầy đủ tiêu đề và nội dung.');
-      return;
+  ngOnDestroy(): void {
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
     }
+  }
 
-    this.api.sendMessage({ subject, content }).pipe(catchError(() => of(null))).subscribe((response) => {
-      if (!response?.success) {
-        this.showToast(response?.message || 'Không thể gửi tin nhắn. Hãy đăng nhập trước.');
-        return;
+  private loadUserEmail(): void {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        this.userEmail = user.email || '';
+      } catch (e) {
+        this.userEmail = '';
       }
-
-      this.loadMessages();
-      this.newSubject = '';
-      this.newContent = '';
-      this.showToast(response.message || 'Tin nhắn đã được gửi.');
-    });
+    }
   }
 
-  sendReply(): void {
-    const content = this.replyContent.trim();
-    if (!content) {
-      this.showToast('Vui lòng nhập nội dung trả lời.');
-      return;
-    }
+  loadConversations(): void {
+    this.isLoading = true;
 
-    this.api
-      .sendMessage({
-        subject: this.selected.subject,
-        content,
-        receiverEmail: this.selected.email,
-      })
-      .pipe(catchError(() => of(null)))
-      .subscribe((response) => {
-        if (!response?.success) {
-          this.showToast(response?.message || 'Không thể gửi phản hồi. Hãy đăng nhập trước.');
-          return;
+    this.apiService.conversations()
+      .pipe(
+        catchError(() => of([] as ApiConversation[])),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe((conversations) => {
+        this.conversations = conversations.map((conversation) => this.mapConversationFromApi(conversation));
+        if (!this.selectedConversation && this.conversations.length) {
+          this.selectConversation(this.conversations[0]);
         }
-
-        this.replyContent = '';
-        this.selectedKey = this.conversationKey(this.selected);
-        this.loadMessages();
-        this.showToast(response.message || 'Đã gửi phản hồi.');
       });
   }
 
-  private addLocalMessage(subject: string, content: string): void {
-    const conversation = {
-      subject,
-      sender: 'Bạn',
-      email: profile.email,
-      lastAt: new Date().toLocaleString('vi-VN'),
-      messages: [
-        {
-          fromMe: true,
-          name: 'Bạn',
-          content,
-          time: new Date().toLocaleString('vi-VN'),
-        },
-      ] satisfies Message[],
+  private mapConversationFromApi(conversation: ApiConversation): Conversation {
+    return {
+      id: conversation.id || '',
+      subject: conversation.subject || 'Không có tiêu đề',
+      sender: conversation.sender || 'Người dùng',
+      senderEmail: undefined,
+      lastMessage: conversation.lastMessage || '',
+      lastAt: conversation.lastAt || '',
+      unreadCount: conversation.unreadCount || 0,
+      messages: (conversation.messages || []).map((message) => ({
+        id: message.id,
+        content: message.content || '',
+        fromMe: Boolean(message.fromMe),
+        name: message.name || '',
+        time: message.time || '',
+      })),
+    };
+  }
+
+  selectConversation(conversation: Conversation): void {
+    this.isLoading = true;
+    this.apiService.conversationById(conversation.id)
+      .pipe(
+        catchError(() => of(null as ApiConversation | null)),
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe((detail) => {
+        if (!detail) {
+          return;
+        }
+
+        const selected = this.mapConversationFromApi(detail);
+        this.selectedConversation = selected;
+
+        const index = this.conversations.findIndex((c) => c.id === conversation.id);
+        if (index !== -1) {
+          this.conversations[index].unreadCount = 0;
+        }
+      });
+  }
+
+  sendReply(): void {
+    if (!this.replyContent.trim() || !this.selectedConversation) return;
+
+    const content = this.replyContent.trim();
+    const subject = this.selectedConversation.subject;
+
+    const newMessage: Message = {
+      content,
+      fromMe: true,
+      name: 'You',
+      time: this.getCurrentTime()
     };
 
-    this.conversations.unshift(conversation);
-    this.selected = conversation;
+    this.selectedConversation.messages.push(newMessage);
+    this.selectedConversation.lastMessage = content;
+    this.selectedConversation.lastAt = this.getCurrentTime();
+    this.replyContent = '';
+    this.scrollToBottom();
+
+    this.apiService
+      .sendMessage({ subject, content, conversationId: this.selectedConversation.id })
+      .pipe(
+        catchError(() => of({ success: false, message: 'Gửi tin nhắn thất bại.' }))
+      )
+      .subscribe((response) => {
+        if (!response?.success) {
+          this.showToast(response?.message || 'Gửi tin nhắn thất bại.');
+          return;
+        }
+
+        this.showToast(response.message || 'Tin nhắn đã gửi.');
+      });
   }
 
-  private loadMessages(): void {
-    this.api.messages().pipe(catchError(() => of([]))).subscribe((messages) => {
-      if (!messages.length) {
-        this.conversations = this.ensureAdminConversation([]);
-        this.selected = this.conversations[0];
-        this.selectedKey = this.conversationKey(this.selected);
-        return;
-      }
-
-      this.conversations = this.ensureAdminConversation(this.groupMessages(messages));
-      this.selected = this.conversations.find((conversation) => this.conversationKey(conversation) === this.selectedKey) || this.conversations[0];
-      this.selectedKey = this.conversationKey(this.selected);
-    });
+  getLastMessage(conversation: Conversation): string {
+    return conversation.lastMessage || '';
   }
 
-  private ensureAdminConversation(conversations: Conversation[]): Conversation[] {
-    const filteredConversations = conversations.filter(
-      (conversation) => conversation.subject !== 'Cơ hội hợp tác' && conversation.subject !== 'Review portfolio',
-    );
-
-    const hasAdmin = filteredConversations.some(
-      (conversation) => conversation.subject === defaultAdminConversation.subject && conversation.email === defaultAdminConversation.email,
-    );
-
-    if (hasAdmin) {
-      return [
-        defaultAdminConversation,
-        ...filteredConversations.filter(
-          (conversation) => !(conversation.subject === defaultAdminConversation.subject && conversation.email === defaultAdminConversation.email),
-        ),
-      ];
-    }
-
-    return [defaultAdminConversation, ...filteredConversations];
+  formatTime(time: string): string {
+    if (!time) return '';
+    return time;
   }
 
-  private conversationKey(conversation: Conversation): string {
-    return `${conversation.subject}|${conversation.email}`;
+  getCurrentTime(): string {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
   }
 
-  private groupMessages(messages: ApiMessage[]): Conversation[] {
-    const groups = new Map<string, Conversation>();
-    const currentUserEmail = profile.email;
-
-    for (const message of messages) {
-      const otherParty = message.email === currentUserEmail ? message.receiverEmail : message.email;
-      const key = `${message.subject}|${otherParty}`;
-      const existing = groups.get(key);
-      const chatMessage: Message = {
-        fromMe: message.email === currentUserEmail,
-        name: message.name,
-        content: message.content,
-        time: message.sentAt ? new Date(message.sentAt).toLocaleString('vi-VN') : '',
-      };
-
-      if (!existing) {
-        groups.set(key, {
-          subject: message.subject,
-          sender: message.name,
-          email: otherParty,
-          lastAt: chatMessage.time,
-          messages: [chatMessage],
-        });
-      } else {
-        existing.messages.push(chatMessage);
-        existing.lastAt = chatMessage.time;
-      }
-    }
-
-    return Array.from(groups.values()).map((conversation) => ({
-      ...conversation,
-      messages: conversation.messages.sort((a: Message, b: Message) => a.time.localeCompare(b.time)),
-    }));
-  }
-
-  private showToast(message: string): void {
+  showToast(message: string): void {
     this.toast = message;
-    window.setTimeout(() => {
+    setTimeout(() => {
       this.toast = '';
-    }, 2200);
+    }, 3000);
+  }
+
+  markAsRead(event: Event): void {
+    event.preventDefault();
+    if (!this.selectedConversation) {
+      return;
+    }
+
+    this.apiService.markConversationAsRead(this.selectedConversation.id)
+      .pipe(catchError(() => of({ success: false })))
+      .subscribe((response) => {
+        if (response.success) {
+          this.selectedConversation!.unreadCount = 0;
+          const index = this.conversations.findIndex((c) => c.id === this.selectedConversation!.id);
+          if (index !== -1) {
+            this.conversations[index].unreadCount = 0;
+          }
+          this.showToast('Đã đánh dấu đã đọc');
+        } else {
+          this.showToast('Không thể đánh dấu đã đọc.');
+        }
+      });
+  }
+
+  deleteConversation(event: Event): void {
+    event.preventDefault();
+    if (this.selectedConversation && confirm('Bạn có chắc muốn xóa cuộc trò chuyện này?')) {
+      const index = this.conversations.findIndex(c => c.id === this.selectedConversation?.id);
+      if (index !== -1) {
+        this.conversations.splice(index, 1);
+        this.selectedConversation = null;
+        this.showToast('Đã xóa cuộc trò chuyện');
+      }
+    }
+  }
+
+  onTyping(): void {
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+    this.isTyping = true;
+    this.typingTimeout = setTimeout(() => {
+      this.isTyping = false;
+    }, 1000);
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const messageStream = document.querySelector('.message-stream');
+      if (messageStream) {
+        messageStream.scrollTop = messageStream.scrollHeight;
+      }
+    }, 100);
   }
 }

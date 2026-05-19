@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 import { LanguageService } from '../core/language.service';
-import { map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-header-auth',
@@ -12,40 +12,45 @@ import { map } from 'rxjs';
   template: `
     <div class="header-auth d-flex align-items-center gap-2">
       <!-- Language Toggle Button -->
-      <button type="button" class="btn btn-outline-primary language-toggle" (click)="toggleLanguage()">
-        <i class="fas fa-globe"></i>
+      <button type="button" class="btn btn-outline-primary rounded-pill" (click)="toggleLanguage()">
+        <i class="fas fa-globe me-1"></i>
         <span>{{ (language$ | async) === 'vi' ? 'EN' : 'VI' }}</span>
       </button>
 
       <!-- User Dropdown when authenticated -->
       <ng-container *ngIf="authenticated$ | async; else loginLink">
         <div class="dropdown">
-          <button class="btn btn-link dropdown-toggle user-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img [src]="userAvatar$ | async" alt="Avatar" class="rounded-circle me-2" width="34" height="34">
-            <span class="user-name">{{ userName$ | async }}</span>
+          <button class="btn btn-link text-decoration-none dropdown-toggle d-flex align-items-center gap-2" 
+                  type="button" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false">
+            <img [src]="userAvatar$ | async" alt="Avatar" class="rounded-circle" width="34" height="34">
+            <span class="fw-semibold text-dark">{{ userName$ | async }}</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end">
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
             <li class="dropdown-header">
-              <div class="user-info-dropdown">
-                <strong>{{ userName$ | async }}</strong>
-                <small class="d-block text-muted">{{ userEmail }}</small>
+              <div class="py-2">
+                <strong class="d-block">{{ userName$ | async }}</strong>
+                <small class="text-muted">{{ userEmail }}</small>
               </div>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item" routerLink="/profile">
-                <i class="fas fa-user-circle me-2"></i>{{ (language$ | async) === 'vi' ? 'Hồ sơ' : 'Profile' }}
+                <i class="fas fa-user-circle me-2 text-primary"></i>{{ (language$ | async) === 'vi' ? 'Hồ sơ' : 'Profile' }}
               </a>
             </li>
             <li>
               <a class="dropdown-item" routerLink="/settings">
-                <i class="fas fa-cog me-2"></i>{{ (language$ | async) === 'vi' ? 'Cài đặt' : 'Settings' }}
+                <i class="fas fa-cog me-2 text-secondary"></i>{{ (language$ | async) === 'vi' ? 'Cài đặt' : 'Settings' }}
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-              <button class="dropdown-item text-danger" (click)="logout()">
-                <i class="fas fa-sign-out-alt me-2"></i>{{ (language$ | async) === 'vi' ? 'Đăng xuất' : 'Sign Out' }}
+              <button class="dropdown-item text-danger" (click)="logout()" [disabled]="isLoggingOut">
+                <i class="fas fa-spinner fa-spin me-2" *ngIf="isLoggingOut"></i>
+                <i class="fas fa-sign-out-alt me-2" *ngIf="!isLoggingOut"></i>
+                {{ (language$ | async) === 'vi' ? 'Đăng xuất' : 'Sign Out' }}
               </button>
             </li>
           </ul>
@@ -54,9 +59,9 @@ import { map } from 'rxjs';
 
       <!-- Login Link for unauthenticated users -->
       <ng-template #loginLink>
-        <a routerLink="/login" class="btn btn-danger">
-          <i class="fab fa-google me-1"></i>
-          <span class="d-none d-sm-inline">{{ (language$ | async) === 'vi' ? 'Đăng nhập' : 'Login' }}</span>
+        <a routerLink="/login" class="btn btn-danger rounded-pill">
+          <i class="fab fa-google me-2"></i>
+          <span>{{ (language$ | async) === 'vi' ? 'Đăng nhập' : 'Login' }}</span>
         </a>
       </ng-template>
     </div>
@@ -68,61 +73,36 @@ import { map } from 'rxjs';
       gap: 0.75rem;
     }
 
-    .language-toggle {
-      border-radius: 50px;
-      padding: 0.375rem 1rem;
-      font-weight: 500;
+    .btn-outline-primary {
       transition: all 0.3s ease;
     }
 
-    .language-toggle:hover {
+    .btn-outline-primary:hover {
       transform: translateY(-2px);
     }
 
-    .user-dropdown-btn {
-      text-decoration: none;
-      color: #333;
-      display: flex;
-      align-items: center;
-      padding: 0.25rem 0.5rem;
-      border-radius: 50px;
-      transition: all 0.3s ease;
+    .dropdown-toggle::after {
+      margin-left: 0.5rem;
     }
 
-    .user-dropdown-btn:hover {
-      background-color: rgba(13, 110, 253, 0.1);
-      transform: translateY(-2px);
+    .dropdown-menu {
+      border-radius: 0.75rem;
+      animation: fadeInDown 0.2s ease;
     }
 
-    .user-name {
-      font-weight: 500;
-      color: #333;
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .dropdown-header {
-      padding: 0.75rem 1rem;
-    }
-
-    .user-info-dropdown {
-      min-width: 180px;
-    }
-
-    .user-info-dropdown strong {
-      display: block;
-      font-size: 0.9rem;
-      color: #333;
-    }
-
-    .user-info-dropdown small {
-      font-size: 0.75rem;
-      word-break: break-all;
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .dropdown-item {
+      padding: 0.5rem 1rem;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -136,37 +116,54 @@ import { map } from 'rxjs';
       background-color: #fee2e2;
     }
 
+    .dropdown-item:active {
+      background-color: #e9ecef;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ea4335, #c5221f);
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+    }
+
     @media (max-width: 576px) {
-      .user-name {
+      .dropdown-toggle span {
         display: none;
       }
       
-      .language-toggle span {
+      .btn-outline-primary span {
         display: none;
       }
       
-      .language-toggle i {
+      .btn-outline-primary i {
         margin-right: 0;
       }
       
-      .language-toggle {
-        padding: 0.375rem 0.75rem;
+      .btn-danger span {
+        display: none;
+      }
+      
+      .btn-danger i {
+        margin-right: 0;
       }
     }
   `]
 })
 export class HeaderAuthComponent {
-  // Lưu email từ localStorage
   userEmail: string = '';
+  isLoggingOut: boolean = false;
 
   constructor(
     private readonly authService: AuthService,
     private readonly languageService: LanguageService,
+    private readonly http: HttpClient
   ) {
-    // Lấy email từ localStorage khi component khởi tạo
     this.loadUserEmail();
-
-    // Theo dõi thay đổi authentication state
     this.authenticated$.subscribe(authenticated => {
       if (authenticated) {
         this.loadUserEmail();
@@ -205,11 +202,29 @@ export class HeaderAuthComponent {
   }
 
   logout(): void {
+    this.isLoggingOut = true;
+
+    // Gọi API logout
+    this.http.post('/api/logout', {}, { withCredentials: true }).subscribe({
+      next: () => {
+        this.clearLocalData();
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        // Vẫn xóa local data kể cả API fail
+        this.clearLocalData();
+      }
+    });
+  }
+
+  private clearLocalData(): void {
     // Xóa localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
     localStorage.removeItem('userAvatar');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
 
     // Cập nhật userEmail
     this.userEmail = '';
@@ -217,9 +232,14 @@ export class HeaderAuthComponent {
     // Refresh auth service state
     this.authService.refresh();
 
+    this.isLoggingOut = false;
+    this.menuOpen = false;
+
     // Tải lại trang để cập nhật UI
-    window.location.reload();
+    window.location.href = '/';
   }
+
+  menuOpen = false;
 
   toggleLanguage(): void {
     this.languageService.toggleLanguage();

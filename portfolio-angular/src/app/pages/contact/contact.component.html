@@ -1,73 +1,204 @@
-<main class="simple-page contact-page">
+<main class="contact-page">
+  <!-- Header -->
   <header class="topbar">
-    <!-- <a routerLink="/" class="header-brand"><i class="fas fa-rocket"></i><span>Portfolio Vu.DD</span></a>
-    <nav>
-      <a routerLink="/">Trang chủ</a>
-      <a routerLink="/dashboard">Dashboard</a>
-      <a routerLink="/skills">Kỹ năng</a>
-    </nav> -->
-    <app-header-auth></app-header-auth>
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <a routerLink="/" class="header-brand">
+          <i class="fas fa-rocket me-2"></i>
+          <span>Portfolio Vu.DD</span>
+        </a>
+        <nav class="d-none d-md-flex gap-3">
+          <a routerLink="/" class="nav-link">Trang chủ</a>
+          <a routerLink="/dashboard" class="nav-link">Dashboard</a>
+          <a routerLink="/skills" class="nav-link">Kỹ năng</a>
+        </nav>
+        <app-header-auth></app-header-auth>
+      </div>
+    </div>
   </header>
 
+  <!-- Page Heading -->
+  <!-- <section class="page-heading text-center py-5 bg-gradient-primary text-white">
+    <div class="container">
+      <h1 class="display-5 fw-bold mb-3">
+        <i class="fas fa-comments me-3"></i>Tin nhắn
+      </h1>
+      <p class="lead mb-0 opacity-90">Quản lý và trò chuyện với người dùng</p>
+    </div>
+  </section> -->
+  <!-- Chat Layout -->
+  <section class="chat-layout min-vh-100 py-4">
+    <div class="container-fluid px-4 px-lg-5 h-100">
+      <div class="row g-4 align-items-stretch">
+        <!-- Conversation List Sidebar -->
+        <div class="col-lg-4 col-xl-3">
+          <div class="card border-0 shadow-lg h-100">
+            <div class="card-header bg-white border-0 p-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                  <i class="fas fa-envelope me-2 text-primary"></i>Tin nhắn
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-circle"
+                  (click)="loadConversations()" title="Làm mới">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-0 h-100">
+              <div class="conversation-list h-100">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
 
-  <section class="page-heading">
-    <h1><i class="fas fa-comments me-2"></i>Tin nhắn</h1>
-    <p>Giao diện contact/chat đã được chuyển sang Angular.</p>
-  </section>
+                <!-- Conversations -->
+                <div *ngFor="let conversation of conversations"
+                  class="conversation-item p-3 border-bottom cursor-pointer"
+                  [class.active]="selectedConversation?.id === conversation.id"
+                  (click)="selectConversation(conversation)">
+                  <div class="d-flex gap-3">
+                    <div class="avatar-circle flex-shrink-0">
+                      {{ (conversation.sender || conversation.subject || 'A').charAt(0) }}
+                    </div>
+                    <div class="flex-grow-1 min-width-0">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="fw-bold mb-1 text-truncate">{{ conversation.subject }}</h6>
+                        <small class="text-muted flex-shrink-0 ms-2">{{ conversation.lastAt }}</small>
+                      </div>
+                      <p class="text-muted small mb-0 text-truncate">
+                        {{ getLastMessage(conversation) }}
+                      </p>
+                      <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small class="text-muted">
+                          <i class="fas fa-user me-1"></i>{{ conversation.sender || 'Anonymous' }}
+                        </small>
+                        <span *ngIf="conversation.unreadCount > 0" class="badge bg-danger rounded-pill">
+                          {{ conversation.unreadCount }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-  <section class="chat-layout">
-    <aside class="conversation-list">
-      <div class="chat-card-header">
-        <h2>Danh sách tin nhắn</h2>
-        <button type="button" class="icon-button" title="Làm mới"><i class="fas fa-sync-alt"></i></button>
-      </div>
-      @for (conversation of conversations; track conversation.subject) {
-      <button type="button" class="conversation-item" [class.active]="selected.subject === conversation.subject"
-        (click)="selectConversation(conversation)">
-        <span class="avatar-small">{{ conversation.sender.charAt(0) || 'A' }}</span>
-        <span class="conversation-copy">
-          <strong>{{ conversation.subject }}</strong>
-          <small>{{ conversation.messages[conversation.messages.length - 1].content }}</small>
-        </span>
-        <time>{{ conversation.lastAt }}</time>
-      </button>
-      }
-    </aside>
+                <!-- Empty State -->
+                <div *ngIf="!isLoading && conversations.length === 0" class="text-center py-5">
+                  <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">Chưa có tin nhắn nào</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <section class="chat-panel">
-      <div class="chat-card-header">
-        <div>
-          <h2><i class="fas fa-comment-dots text-primary me-2"></i>{{ selected.subject }}</h2>
-          <p>Đối thoại ({{ selected.messages.length }} tin nhắn)</p>
+        <!-- Chat Panel -->
+        <div class="col-lg-8 col-xl-9">
+          <div class="card border-0 shadow-lg h-100 d-flex flex-column">
+            <div *ngIf="selectedConversation; else noConversationSelected" class="d-flex flex-column h-100">
+              <!-- Chat Header -->
+              <div class="card-header bg-white border-0 p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                  <div>
+                    <h5 class="fw-bold mb-1">
+                      <i class="fas fa-comment-dots text-primary me-2"></i>
+                      {{ selectedConversation.subject }}
+                    </h5>
+                    <small class="text-muted">
+                      {{ selectedConversation.messages.length || 0 }} tin nhắn
+                    </small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" type="button" (click)="markAsRead($event)"
+                      title="Đánh dấu đã đọc">
+                      <i class="fas fa-check me-1"></i><span class="d-none d-sm-inline">Đã đọc</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button" (click)="deleteConversation($event)"
+                      title="Xóa cuộc trò chuyện">
+                      <i class="fas fa-trash me-1"></i><span class="d-none d-sm-inline">Xóa</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Messages Area -->
+              <div class="card-body p-0 flex-grow-1 overflow-hidden">
+                <div class="message-stream p-4 h-100 overflow-auto">
+                  <div *ngFor="let message of selectedConversation.messages" class="message-bubble d-flex mb-4"
+                    [class.justify-content-end]="message.fromMe">
+                    <div class="d-flex gap-3" [class.flex-row-reverse]="message.fromMe" style="max-width: 70%;">
+                      <div class="avatar-small flex-shrink-0 d-flex align-items-center justify-content-center"
+                        [class.bg-primary]="!message.fromMe" [class.bg-secondary]="message.fromMe"
+                        style="width: 40px; height: 40px; border-radius: 50%;">
+                        {{ (message.name || (message.fromMe ? 'B' : 'A')).charAt(0) }}
+                      </div>
+                      <div class="bubble p-3 rounded-3 shadow-sm" [class.bg-primary]="message.fromMe"
+                        [class.text-white]="message.fromMe" [class.bg-light]="!message.fromMe">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                          <strong>{{ message.fromMe ? 'Bạn' : message.name }}</strong>
+                          <small class="ms-2" [class.text-white-50]="message.fromMe"
+                            [class.text-muted]="!message.fromMe">
+                            <i class="far fa-clock me-1"></i>{{ formatTime(message.time) }}
+                          </small>
+                        </div>
+                        <p class="mb-0" [class.text-white]="message.fromMe">{{ message.content }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Typing indicator -->
+                  <div *ngIf="isTyping" class="typing-indicator d-flex gap-2 align-items-center mb-4">
+                    <div class="avatar-small bg-secondary d-flex align-items-center justify-content-center"
+                      style="width: 40px; height: 40px; border-radius: 50%;">A</div>
+                    <div class="bubble bg-light p-3 rounded-3">
+                      <div class="typing-dots d-flex gap-1">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Message Input -->
+              <div class="card-footer bg-white border-0 p-4">
+                <form (ngSubmit)="sendReply()" class="d-flex gap-2">
+                  <textarea name="replyContent" [(ngModel)]="replyContent" class="form-control form-control-lg" rows="1"
+                    style="resize: none; border-radius: 50px; font-size: 1rem; padding: 12px 20px;"
+                    placeholder="✏️ Viết tin nhắn..." (keydown.enter)="$event.preventDefault(); sendReply()"></textarea>
+                  <button type="submit"
+                    class="btn btn-primary btn-lg rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 52px; height: 52px; flex-shrink: 0;" [disabled]="!replyContent.trim()" title="Gửi">
+                    <i class="fas fa-paper-plane fa-lg"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- No Conversation Selected -->
+            <ng-template #noConversationSelected>
+              <div class="text-center py-5 my-5">
+                <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+                <h4 class="text-muted">Chưa chọn tin nhắn</h4>
+                <p class="text-muted">Chọn một cuộc trò chuyện từ danh sách bên trái</p>
+              </div>
+            </ng-template>
+          </div>
         </div>
       </div>
-
-      <div class="message-stream">
-        @for (message of selected.messages; track message.time + message.content) {
-        <article class="message-bubble" [class.from-me]="message.fromMe">
-          <ng-container *ngIf="!message.fromMe">
-            <span class="message-avatar">{{ message.name.charAt(0) || 'A' }}</span>
-          </ng-container>
-          <div class="bubble">
-            <strong>{{ message.fromMe ? 'Bạn' : message.name }}</strong>
-            <p>{{ message.content }}</p>
-            <time>{{ message.time }}</time>
-          </div>
-          <ng-container *ngIf="message.fromMe">
-            <span class="message-avatar">{{ message.name.charAt(0) || 'B' }}</span>
-          </ng-container>
-        </article>
-        }
-      </div>
-
-      <form class="chat-input" novalidate (ngSubmit)="sendReply()">
-        <textarea name="replyContent" [(ngModel)]="replyContent" rows="1" placeholder="Viết tin nhắn..."></textarea>
-        <button type="submit" class="send-btn" title="Gửi"><i class="fas fa-paper-plane"></i></button>
-      </form>
-    </section>
+    </div>
   </section>
 
-  @if (toast) {
-  <div class="toast-message">{{ toast }}</div>
-  }
+  <!-- Toast Message -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+    <div *ngIf="toast" class="toast show" role="alert">
+      <div class="toast-header">
+        <i class="fas fa-bell me-2 text-primary"></i>
+        <strong class="me-auto">Thông báo</strong>
+        <!-- <button type="button" class="btn-close" (click)="clearToast()"></button> -->
+      </div>
+      <div class="toast-body">
+        {{ toast }}
+      </div>
+    </div>
+  </div>
 </main>
