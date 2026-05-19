@@ -186,7 +186,20 @@ export class LandingComponent implements OnInit, OnDestroy {
       window.clearTimeout(this.timer);
     }
   }
+  openLoginModal(): void {
+    // Nếu có service auth, gọi hàm login
+    // Ví dụ:
+    // this.authService.login();
 
+    // Hoặc chuyển hướng đến trang login
+    // this.router.navigate(['/login']);
+
+    // Hoặc hiển thị modal đăng nhập
+    console.log('Open login modal');
+
+    // Tạm thời hiển thị toast thông báo
+    this.showToast(this.t('Vui lòng đăng nhập để gửi tin nhắn', 'Please login to send message'));
+  }
   @HostListener('window:scroll')
   onScroll(): void {
     this.isScrolled = window.scrollY > 50;
