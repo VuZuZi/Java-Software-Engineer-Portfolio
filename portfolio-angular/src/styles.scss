@@ -456,7 +456,7 @@ textarea {
   background: white;
 }
 
-.grid-content > section {
+.grid-content>section {
   scroll-margin-top: 92px;
 }
 
@@ -892,6 +892,12 @@ textarea {
   overflow: hidden;
 }
 
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .chat-card-header {
   min-height: 72px;
   padding: 18px;
@@ -963,19 +969,39 @@ textarea {
 }
 
 .message-stream {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  max-height: 380px;
+  flex: 1;
+  min-height: 0;
   padding: 18px;
   overflow: auto;
 }
 
 .message-bubble {
   display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .message-bubble.from-me {
   justify-content: flex-end;
+  text-align: right;
+}
+
+.message-avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: white;
+  background: #2563eb;
+  border-radius: 50%;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .bubble {
@@ -985,9 +1011,14 @@ textarea {
   border-radius: 12px;
 }
 
-.from-me .bubble {
+.message-bubble.from-me .bubble {
   color: white;
   background: #2f80ed;
+}
+
+.message-bubble:not(.from-me) .bubble {
+  color: #0f172a;
+  background: #e2e8f0;
 }
 
 .bubble p {
@@ -1008,6 +1039,7 @@ textarea {
   padding: 6px 8px;
   background: #f1f5f9;
   border-radius: 20px;
+  margin-top: auto;
 }
 
 .chat-input textarea,
@@ -1130,6 +1162,7 @@ textarea {
 }
 
 @media (max-width: 900px) {
+
   .menu-content-wrapper,
   .dashboard-shell,
   .chat-layout {
@@ -1153,6 +1186,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
+
   .grid-header,
   .grid-footer,
   .hero,

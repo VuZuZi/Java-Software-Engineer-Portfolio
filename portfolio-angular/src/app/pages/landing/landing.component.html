@@ -6,15 +6,7 @@
         <span>{{ profile.brand }}</span>
       </a>
 
-      <div class="header-auth">
-        <button type="button" class="btn btn-outline-primary language-toggle" (click)="toggleLanguage()">
-          <i class="fas fa-globe"></i>
-          <span>{{ language === 'vi' ? 'EN' : 'VI' }}</span>
-        </button>
-        <a routerLink="/login" class="btn btn-danger">
-          <i class="fab fa-google me-1"></i>
-        </a>
-      </div>
+      <app-header-auth></app-header-auth>
     </div>
   </header>
 
@@ -187,12 +179,31 @@
 
       <section id="contact" class="cta-section">
         <div class="landing-contact-panel">
-          <h3>{{ t('tôi đã sẵn sàng cho dự án tiếp theo!', 'I am ready for the next project!') }}</h3>
-          <p class="mb-4">{{ t('Hãy liên hệ với tôi để cùng thảo luận về cơ hội hợp tác', 'Contact me to discuss
-            collaboration opportunities') }}</p>
-          <a [href]="'mailto:' + profile.email" class="btn btn-light btn-lg">
-            <i class="fas fa-envelope me-2"></i>{{ t('Liên hệ ngay', 'Contact now') }}
-          </a>
+          <ng-container *ngIf="authService.authenticated$ | async; else guestContact">
+            <form class="new-message-form" (ngSubmit)="sendNewMessage()">
+              <h3>{{ t('Gửi tin nhắn mới đến Admin', 'Send a new message to Admin') }}</h3>
+              <div class="mb-3">
+                <input name="newSubject" class="form-control" [(ngModel)]="newSubject"
+                  placeholder="{{ t('Tiêu đề', 'Subject') }}">
+              </div>
+              <div class="mb-3">
+                <textarea name="newContent" class="form-control" [(ngModel)]="newContent" rows="3"
+                  placeholder="{{ t('Nhập nội dung bạn muốn gửi tới Admin...', 'Enter the message you want to send to Admin...') }}"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>{{ t('Gửi tin nhắn', 'Send message') }}
+              </button>
+            </form>
+            <div *ngIf="toast" class="alert alert-success mt-3">{{ toast }}</div>
+          </ng-container>
+          <ng-template #guestContact>
+            <h3>{{ t('tôi đã sẵn sàng cho dự án tiếp theo!', 'I am ready for the next project!') }}</h3>
+            <p class="mb-4">{{ t('Hãy liên hệ với tôi để cùng thảo luận về cơ hội hợp tác', 'Contact me to discuss
+              collaboration opportunities') }}</p>
+            <a [href]="'mailto:' + profile.email" class="btn btn-light btn-lg">
+              <i class="fas fa-envelope me-2"></i>{{ t('Liên hệ ngay', 'Contact now') }}
+            </a>
+          </ng-template>
         </div>
       </section>
     </main>

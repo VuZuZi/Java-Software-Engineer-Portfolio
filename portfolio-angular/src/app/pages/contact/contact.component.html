@@ -1,12 +1,14 @@
 <main class="simple-page contact-page">
   <header class="topbar">
-    <a routerLink="/" class="header-brand"><i class="fas fa-rocket"></i><span>Portfolio Vu.DD</span></a>
+    <!-- <a routerLink="/" class="header-brand"><i class="fas fa-rocket"></i><span>Portfolio Vu.DD</span></a>
     <nav>
       <a routerLink="/">Trang chủ</a>
       <a routerLink="/dashboard">Dashboard</a>
       <a routerLink="/skills">Kỹ năng</a>
-    </nav>
+    </nav> -->
+    <app-header-auth></app-header-auth>
   </header>
+
 
   <section class="page-heading">
     <h1><i class="fas fa-comments me-2"></i>Tin nhắn</h1>
@@ -20,18 +22,15 @@
         <button type="button" class="icon-button" title="Làm mới"><i class="fas fa-sync-alt"></i></button>
       </div>
       @for (conversation of conversations; track conversation.subject) {
-        <button
-          type="button"
-          class="conversation-item"
-          [class.active]="selected.subject === conversation.subject"
-          (click)="selectConversation(conversation)">
-          <span class="avatar-small"><i class="fas fa-user-circle"></i></span>
-          <span class="conversation-copy">
-            <strong>{{ conversation.subject }}</strong>
-            <small>{{ conversation.messages[conversation.messages.length - 1].content }}</small>
-          </span>
-          <time>{{ conversation.lastAt }}</time>
-        </button>
+      <button type="button" class="conversation-item" [class.active]="selected.subject === conversation.subject"
+        (click)="selectConversation(conversation)">
+        <span class="avatar-small">{{ conversation.sender.charAt(0) || 'A' }}</span>
+        <span class="conversation-copy">
+          <strong>{{ conversation.subject }}</strong>
+          <small>{{ conversation.messages[conversation.messages.length - 1].content }}</small>
+        </span>
+        <time>{{ conversation.lastAt }}</time>
+      </button>
       }
     </aside>
 
@@ -45,31 +44,30 @@
 
       <div class="message-stream">
         @for (message of selected.messages; track message.time + message.content) {
-          <article class="message-bubble" [class.from-me]="message.fromMe">
-            <div class="bubble">
-              <strong>{{ message.fromMe ? 'Bạn' : message.name }}</strong>
-              <p>{{ message.content }}</p>
-              <time>{{ message.time }}</time>
-            </div>
-          </article>
+        <article class="message-bubble" [class.from-me]="message.fromMe">
+          <ng-container *ngIf="!message.fromMe">
+            <span class="message-avatar">{{ message.name.charAt(0) || 'A' }}</span>
+          </ng-container>
+          <div class="bubble">
+            <strong>{{ message.fromMe ? 'Bạn' : message.name }}</strong>
+            <p>{{ message.content }}</p>
+            <time>{{ message.time }}</time>
+          </div>
+          <ng-container *ngIf="message.fromMe">
+            <span class="message-avatar">{{ message.name.charAt(0) || 'B' }}</span>
+          </ng-container>
+        </article>
         }
       </div>
 
-      <form class="chat-input" (ngSubmit)="sendReply()">
+      <form class="chat-input" novalidate (ngSubmit)="sendReply()">
         <textarea name="replyContent" [(ngModel)]="replyContent" rows="1" placeholder="Viết tin nhắn..."></textarea>
         <button type="submit" class="send-btn" title="Gửi"><i class="fas fa-paper-plane"></i></button>
-      </form>
-
-      <form class="new-message-form" (ngSubmit)="sendNewMessage()">
-        <h3>Gửi tin nhắn mới đến Admin</h3>
-        <input name="newSubject" [(ngModel)]="newSubject" placeholder="Tiêu đề">
-        <textarea name="newContent" [(ngModel)]="newContent" rows="3" placeholder="Nhập nội dung bạn muốn gửi tới Admin..."></textarea>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Gửi tin nhắn</button>
       </form>
     </section>
   </section>
 
   @if (toast) {
-    <div class="toast-message">{{ toast }}</div>
+  <div class="toast-message">{{ toast }}</div>
   }
 </main>
