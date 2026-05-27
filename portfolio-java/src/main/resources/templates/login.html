@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập - Portfolio Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .btn-google {
+            background-color: #DB4437;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-google:hover {
+            background-color: #c23321;
+            transform: scale(1.05);
+            color: white;
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card text-center p-4">
+                <div class="logo">
+                    🚀
+                </div>
+                <h2 class="mb-3">Portfolio Platform</h2>
+                <p class="text-muted mb-4">Đăng nhập để quản lý dự án và kỹ năng</p>
+
+                <div th:if="${param.error}" class="alert alert-danger mb-3">
+                    Đăng nhập thất bại. Vui lòng thử lại.
+                </div>
+
+                <div th:if="${param.logout}" class="alert alert-success mb-3">
+                    Bạn đã đăng xuất thành công.
+                </div>
+
+                <a href="/oauth2/authorization/google" class="btn btn-google w-100">
+                    <img src="https://www.google.com/favicon.ico" width="20" class="me-2">
+                    Đăng nhập với Google
+                </a>
+
+                <hr class="my-4">
+
+                <p class="text-muted small">
+                    Bằng cách đăng nhập, bạn đồng ý với <a href="#">Điều khoản</a> của chúng tôi.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Java Developer</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Grid Layout CSS -->
+    <link rel="stylesheet" href="/css/landing-grid.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Navbar - Header Sticky */
+        .navbar-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-sticky.scrolled {
+            background: rgba(255, 255, 255, 0.99);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            color: #333 !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #667eea !important;
+        }
+
+        .nav-link {
+            color: #555 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 0 8px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .navbar-toggler {
+            border-color: #667eea;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-top: 0;
+            padding-top: 60px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .hero .btn {
+            padding: 12px 35px;
+            border-radius: 50px;
+            margin: 0 10px;
+        }
+
+        /* Section */
+        section {
+            scroll-margin-top: 80px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-title .underline {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+
+        /* Service Card */
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            text-align: center;
+            height: 100%;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .service-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        /* Project Card */
+        .project-card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            height: 100%;
+            background: white;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-color: #667eea;
+        }
+
+        /* Skill Badge */
+        .skill-badge {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin: 5px;
+            display: inline-block;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .skill-badge:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            background: #667eea;
+            transform: translateY(-3px);
+        }
+
+        /* Placeholder for page-specific overrides if needed */
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-sticky">
+        <div class="container">
+            <!-- LOGO -->
+            <a th:href="@{${#authorization.expression('isAuthenticated()')} ? '/dashboard' : '/'}"
+                class="navbar-brand d-flex align-items-center text-decoration-none">
+
+                <!-- Avatar khi login -->
+                <img sec:authorize="isAuthenticated()" th:src="${#authentication.principal.attributes['picture']}"
+                    width="40" height="40" class="rounded-circle me-2" alt="Avatar" />
+
+                <!-- Logo khi chưa login -->
+                <i sec:authorize="isAnonymous()" class="fas fa-rocket text-primary me-2"></i>
+
+                <span class="fw-semibold">Đoàn Đình Vũ</span>
+            </a>
+
+            <!-- Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navigation Menu -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home" data-nav-link>Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services" data-nav-link>Dịch vụ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects" data-nav-link>Dự án</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#skills" data-nav-link>Kỹ năng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact" data-nav-link>Liên hệ</a>
+                    </li>
+
+                    <!-- CHƯA LOGIN -->
+                    <li class="nav-item ms-lg-2" sec:authorize="isAnonymous()">
+                        <a href="/oauth2/authorization/google" class="btn btn-sm btn-danger">
+                            <i class="fab fa-google me-1"></i> Đăng nhập
+                        </a>
+                    </li>
+
+                    <!-- ĐÃ LOGIN -->
+                    <li class="nav-item dropdown ms-lg-2" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <img th:src="${#authentication.principal.attributes['picture']}" width="32" height="32"
+                                class="rounded-circle me-2" alt="Avatar" />
+                            <span th:text="${#authentication.principal.attributes['name']}"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <span class="dropdown-item-text small text-muted"
+                                    th:text="${#authentication.principal.attributes['email']}"></span>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                            <li><a class="dropdown-item text-danger" href="/logout">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================= HERO ================= -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7" data-aos="fade-right">
+                    <h1>Xin chào! Tôi là <span id="typed-text"></span></h1>
+                    <p>Java Developer với 4+ năm kinh nghiệm trong phát triển ứng dụng doanh nghiệp,
+                        hệ thống realtime và microservices.</p>
+                    <div>
+                        <a href="/projects" class="btn btn-light">
+                            <i class="fas fa-project-diagram me-2"></i>Xem dự án
+                        </a>
+                        <a sec:authorize="isAnonymous()" href="/oauth2/authorization/google"
+                            class="btn btn-outline-light">
+                            <i class="fab fa-google me-2"></i> Đăng nhập
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center" data-aos="fade-left">
+                    <img sec:authorize="isAuthenticated()" th:src="${#authentication.principal.attributes['picture']}"
+                        alt="Avatar" class="img-fluid rounded-circle shadow-lg" style="max-width: 70%;">
+                    <img sec:authorize="isAnonymous()" src="https://cdn-icons-png.flaticon.com/512/1995/1995572.png"
+                        alt="Developer" class="img-fluid" style="max-width: 70%;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SERVICES ================= -->
+    <section id="services" class="py-5">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>Chuyên môn của tôi</h2>
+                <div class="underline"></div>
+                <p class="text-muted mt-3">Những lĩnh vực tôi tập trung phát triển</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-server"></i></div>
+                        <h4>Backend Development</h4>
+                        <p class="text-muted">Java, Spring Boot, Microservices, REST API, WebSocket</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-database"></i></div>
+                        <h4>Database Design</h4>
+                        <p class="text-muted">MySQL, MongoDB, PostgreSQL, Redis, Query Optimization</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                        <h4>DevOps & Deployment</h4>
+                        <p class="text-muted">Docker, CI/CD, Linux Server, Cloud Deployment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section id="projects" class="py-5 bg-light">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>Dự án nổi bật</h2>
+                <div class="underline"></div>
+                <p class="text-muted mt-3">Những dự án tôi đã tham gia</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="flip-left" data-aos-delay="100">
+                    <div class="project-card">
+                        <div class="project-img"
+                            style="background-image: url('https://placehold.co/600x400/667eea/white?text=Car+Infotainment');">
+                        </div>
+                        <div class="p-3">
+                            <h5>Car Infotainment System</h5>
+                            <p class="text-muted small">LG Electronics | Java, Spring Boot, Android Framework</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="flip-left" data-aos-delay="200">
+                    <div class="project-card">
+                        <div class="project-img"
+                            style="background-image: url('https://placehold.co/600x400/764ba2/white?text=Chat+Platform');">
+                        </div>
+                        <div class="p-3">
+                            <h5>Real-time Chat Platform</h5>
+                            <p class="text-muted small">Portfolio | WebSocket, STOMP, Redis</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="flip-left" data-aos-delay="300">
+                    <div class="project-card">
+                        <div class="project-img"
+                            style="background-image: url('https://placehold.co/600x400/667eea/white?text=Portfolio+Platform');">
+                        </div>
+                        <div class="p-3">
+                            <h5>Portfolio Platform</h5>
+                            <p class="text-muted small">Spring Boot, MySQL, OAuth2, WebSocket</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/projects" class="btn btn-primary">Xem tất cả dự án</a>
+            </div>
+    </section>
+    <section id="skills" class="py-5">
+        <div class="container">
+            <div class="section-title" data-aos="fade-up">
+                <h2>Kỹ năng & Công nghệ</h2>
+                <div class="underline"></div>
+                <p class="text-muted mt-3">Các công nghệ tôi sử dụng hàng ngày</p>
+            </div>
+            <div class="text-center">
+                <span class="skill-badge">Java 17</span>
+                <span class="skill-badge">Spring Boot</span>
+                <span class="skill-badge">Spring Security</span>
+                <span class="skill-badge">Hibernate/JPA</span>
+                <span class="skill-badge">MySQL</span>
+                <span class="skill-badge">MongoDB</span>
+                <span class="skill-badge">WebSocket</span>
+                <span class="skill-badge">REST API</span>
+                <span class="skill-badge">Microservices</span>
+                <span class="skill-badge">Docker</span>
+                <span class="skill-badge">Git/GitHub</span>
+                <span class="skill-badge">Maven/Gradle</span>
+                <span class="skill-badge">IntelliJ IDEA</span>
+                <span class="skill-badge">JIRA</span>
+                <span class="skill-badge">NetBeans</span>
+            </div>
+    </section>
+    <section id="contact" class="cta-section">
+        <div class="container">
+            <h3 data-aos="zoom-in">Sẵn sàng cho dự án tiếp theo?</h3>
+            <p class="mb-4">Hãy liên hệ với tôi để cùng thảo luận về cơ hội hợp tác</p>
+            <a href="mailto:markdoan38@gmail.com" class="btn btn-light btn-lg">
+                <i class="fas fa-envelope me-2"></i> Liên hệ ngay
+            </a>
+        </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+
+    </div>
+    <div class="footer">
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <h5><i class="fas fa-rocket me-2"></i>Portfolio Platform</h5>
+                        <p class="text-muted">Giới thiệu dự án, kỹ năng và kinh nghiệm làm việc của tôi.</p>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <h5>Liên kết nhanh</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="#home" class="text-muted text-decoration-none">Trang chủ</a></li>
+                            <li><a href="#projects" class="text-muted text-decoration-none">Dự án</a></li>
+                            <li><a href="#skills" class="text-muted text-decoration-none">Kỹ năng</a></li>
+                            <li><a href="#contact" class="text-muted text-decoration-none">Liên hệ</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <h5>Kết nối</h5>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        </div>
+                        <p class="mt-3 text-muted">
+                            <i class="fas fa-envelope me-2"></i> markdoan38@gmail.com<br>
+                            <i class="fas fa-map-marker-alt me-2"></i> Đà Nẵng, Việt Nam
+                        </p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Portfolio Platform. Built with <i class="fas fa-heart text-danger"></i> by Java
+                        Developer</p>
+                </div>
+            </div>
+        </footer>
+
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+        <script>
+            AOS.init({ duration: 1000, once: true });
+
+            new Typed('#typed-text', {
+                strings: ['Đoàn Đình Vũ', 'Java Developer', 'Spring Boot Expert', 'Problem Solver'],
+                typeSpeed: 50,
+                backSpeed: 30,
+                loop: true
+            });
+
+            // ===== HEADER / NAVBAR FUNCTIONALITY =====
+            const navbar = document.querySelector('.navbar-sticky');
+            const navLinks = document.querySelectorAll('.nav-link[data-nav-link]');
+            const navbarCollapse = document.querySelector('#navbarNav');
+            const sections = document.querySelectorAll('section[id]');
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+
+                // Update active nav link
+                updateActiveNavLink();
+            });
+
+            // Update active nav link based on scroll position
+            function updateActiveNavLink() {
+                let currentSection = '';
+                const scrollPosition = window.scrollY + 150;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + currentSection) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // Smooth scroll with close mobile menu
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        // Close mobile menu
+                        const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+                            toggle: false
+                        });
+                        bsCollapse.hide();
+
+                        // Smooth scroll
+                        const offset = 90;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        // Update history
+                        history.pushState(null, null, targetId);
+                    }
+                });
+            });
+
+            // Handle hash in URL on page load
+            window.addEventListener('load', () => {
+                if (window.location.hash) {
+                    const hash = window.location.hash;
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        setTimeout(() => {
+                            const offset = 90;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }, 100);
+                    }
+                }
+            });
+
+            // Smooth scroll for other anchor links (not nav)
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                if (!link.hasAttribute('data-nav-link')) {
+                    link.addEventListener('click', function (e) {
+                        const targetId = this.getAttribute('href');
+                        if (targetId === '#') return;
+
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            e.preventDefault();
+                            const offset = 90;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                            window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+</body>
+
+</html>

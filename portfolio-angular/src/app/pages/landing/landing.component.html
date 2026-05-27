@@ -1,0 +1,524 @@
+<div class="grid-container">
+  <header class="grid-header" [class.scrolled]="isScrolled">
+    <div class="header-container">
+      <a routerLink="/" class="header-brand">
+        <i class="fas fa-rocket"></i>
+        <span>{{ profile.brand }}</span>
+      </a>
+
+      <app-header-auth></app-header-auth>
+    </div>
+  </header>
+
+  <div class="menu-content-wrapper">
+    <aside class="grid-menu" aria-label="Sidebar navigation">
+      <div class="sidebar p-3">
+        <div class="sidebar-section-title">{{ t('Hồ sơ', 'Profile') }}</div>
+        <div class="user-info-sidebar">
+          <img [src]="profile.avatarUrl" class="avatar" alt="Avatar">
+          <div class="user-meta-sidebar">
+            <div class="user-name-sidebar">{{ profile.name }}</div>
+            <div class="user-email-sidebar">{{ profile.title }}</div>
+          </div>
+          <div class="role-badge mt-2">
+            <i class="fas fa-shield-alt me-1"></i> Admin
+          </div>
+          <div class="profile-details">
+            <ul class="list-unstyled mb-0">
+              <li class="detail-item">
+                <i class="fas fa-venus-mars me-2 text-secondary"></i>
+                <strong>{{ t('Giới tính:', 'Gender:') }}</strong>
+                <span>{{ t('Nam', 'Male') }}</span>
+              </li>
+              <li class="detail-item">
+                <i class="fas fa-birthday-cake me-2 text-secondary"></i>
+                <strong>{{ t('Tuổi:', 'Age:') }}</strong>25
+              </li>
+              <li class="detail-item"><i class="fas fa-phone me-2 text-secondary"></i><a
+                  [href]="'tel:' + profile.phone">{{ profile.phone }}</a></li>
+              <li class="detail-item"><i class="fas fa-envelope me-2 text-secondary"></i><a
+                  [href]="'mailto:' + profile.email">{{ profile.email }}</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sidebar-section-title mt-4">Menu</div>
+        <ul class="nav nav-pills flex-column sidebar-nav">
+          <li class="nav-item" *ngFor="let section of sections">
+            <button type="button" class="nav-link" [class.active]="activeSection === section"
+              (click)="scrollTo(section)">
+              <i class="fas me-2" [ngClass]="{
+            'fa-house': section === 'home',
+            'fa-briefcase': section === 'services',
+            'fa-diagram-project': section === 'projects',
+            'fa-screwdriver-wrench': section === 'skills',
+            'fa-address-book': section === 'contact'
+          }"></i>
+              <span>
+                {{ section === 'home' ? t('Giới thiệu', 'Introduction') :
+                section === 'services' ? t('Dịch vụ', 'Service') :
+                section === 'projects' ? t('Dự án', 'Project') :
+                section === 'skills' ? t('Kỹ năng', 'Skills') : t('Liên hệ', 'Contact') }}
+              </span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contact">
+              <i class="fas fa-envelope me-2"></i><span>{{ t('Tin nhắn', 'Message') }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- THÊM MỚI: Social links trong sidebar -->
+        <div class="sidebar-section-title mt-4">{{ t('Kết nối', 'Connect') }}</div>
+        <div class="sidebar-social d-flex justify-content-around mt-2">
+          <a href="#" class="text-secondary" aria-label="GitHub"><i class="fab fa-github fa-lg"></i></a>
+          <a href="#" class="text-secondary" aria-label="LinkedIn"><i class="fab fa-linkedin-in fa-lg"></i></a>
+          <a href="#" class="text-secondary" aria-label="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a>
+          <a href="#" class="text-secondary" aria-label="Twitter"><i class="fab fa-twitter fa-lg"></i></a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="grid-content">
+      <section id="home" class="hero">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-7">
+              <div class="badge bg-light text-dark mb-3 px-3 py-2">
+                <i class="fas fa-code me-1"></i> {{ t('Đang tìm kiếm cơ hội mới', 'Open for opportunities') }}
+              </div>
+              <h1 class="display-4 fw-bold mb-3">
+                {{ t('Xin chào, tôi là', 'Hello, I am ') }} <span class="text-highlight">{{ typedText }}</span>
+              </h1>
+              <p class="lead mb-3">
+                {{ t('Java Developer với hơn 2 năm kinh nghiệm, đã tham gia hai dự án tại FPT Software.', 'Java
+                Developer with over 2 years of experience, having worked on two projects at FPT Software.') }}
+              </p>
+              <p class="mb-3">
+                {{ t('Tôi có nền tảng từ CodeGym và FPT University, cùng kiến thức vững về OOP, Spring Boot và RESTful
+                APIs.', 'I have a strong educational background from CodeGym and FPT University, with solid knowledge of
+                OOP, Spring Boot and RESTful APIs.') }}
+              </p>
+              <div class="d-flex gap-3 flex-wrap mt-4">
+                <button type="button" class="btn btn-primary btn-lg" (click)="scrollTo('projects')">
+                  <i class="fas fa-project-diagram me-2"></i>{{ t('Xem dự án', 'View projects') }}
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-lg" (click)="scrollTo('contact')">
+                  <i class="fas fa-envelope me-2"></i>{{ t('Liên hệ', 'Contact') }}
+                </button>
+              </div>
+            </div>
+            <div class="col-lg-5 text-center mt-4 mt-lg-0">
+              <div class="profile-image-wrapper">
+                <img [src]="profile.avatarUrl" alt="Developer" class="img-fluid rounded-circle shadow-lg profile-image">
+                <div class="online-status mt-3">
+                  <i class="fas fa-circle text-success"></i> {{ t('Sẵn sàng làm việc', 'Available for work') }}
+                </div>
+                <div class="tech-stack mt-3">
+                  <span class="badge bg-primary me-1">Java</span>
+                  <span class="badge bg-primary me-1">Spring Boot</span>
+                  <span class="badge bg-primary me-1">Node.js</span>
+                  <span class="badge bg-primary">REST API</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="py-5 bg-light">
+        <div class="container">
+          <div class="section-title">
+            <h2>{{ t('Dịch vụ & Chuyên môn', 'Services & Expertise') }}</h2>
+            <div class="underline"></div>
+            <p class="text-muted mt-3">{{ t('Những năng lực tôi có thể đóng góp cho dự án', 'Capabilities I can
+              contribute to your project') }}</p>
+          </div>
+          <div class="row g-4">
+            <div class="col-md-4" *ngFor="let service of services">
+              <div class="service-card h-100">
+                <div class="service-icon"><i [class]="service.icon"></i></div>
+                <h4>{{ service.title }}</h4>
+                <p class="text-muted">{{ service.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" class="py-5">
+        <div class="section-title">
+          <h2>{{ t('Dự án nổi bật', 'Featured Projects') }}</h2>
+          <div class="underline"></div>
+          <p class="text-muted mt-3">{{ t('Những dự án tôi đã tham gia', 'Projects I have contributed to') }}</p>
+        </div>
+        <div class="row g-4 content-row">
+          <div class="col-md-4" *ngFor="let project of projects">
+            <article class="project-card h-100">
+              <div class="project-img" [style.background-image]="'url(' + project.image + ')'"></div>
+              <div class="p-3">
+                <h5>{{ project.name }}</h5>
+                <p class="text-muted small">{{ project.description }}</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="skills" class="py-5 bg-light">
+        <div class="container">
+          <!-- Section Title -->
+          <div class="section-title text-center mb-5">
+            <h2 class="display-6 fw-bold">{{ t('Kỹ năng & Kinh nghiệm', 'Skills & Experience') }}</h2>
+            <div class="underline mx-auto" style="width: 80px; height: 4px; background-color: #0d6efd;"></div>
+            <p class="text-muted mt-3">{{ t('Những kỹ năng và kinh nghiệm làm việc của tôi', 'My skills and work
+              experience') }}</p>
+          </div>
+
+          <div class="row g-4 align-items-stretch">
+            <!-- Left Side: Skills -->
+
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                  <h3 class="h4 mb-4 fw-bold">
+                    <i class="bi bi-code-slash me-2 text-primary"></i>
+                    {{ t('Kỹ năng chuyên môn', 'Professional Skills') }}
+                  </h3>
+                  <div class="row">
+                    <div class="col-12 col-md-6 col-lg-12" *ngFor="let skill of skillProgress">
+                      <div class="skill-item mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="fw-semibold mb-0">{{ skill.name }}</h6>
+                          <span class="badge bg-primary rounded-pill"
+                            style="background-color: #0d6efd !important; color: white !important;">
+                            {{ skill.value }}%
+                          </span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #e9ecef; border-radius: 10px;">
+                          <div class="progress-bar {{ skill.colorClass }}" role="progressbar"
+                            [style.width.%]="skill.value" [attr.aria-valuenow]="skill.value" aria-valuemin="0"
+                            aria-valuemax="100" style="border-radius: 10px;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Experience & Education Tabs -->
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                  <!-- Tab Navigation -->
+                  <ul class="nav nav-pills justify-content-center gap-3 mb-4" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-semibold px-4 py-2 rounded-pill"
+                        [class.active]="activeSkillTab === 'experience'" (click)="activeSkillTab = 'experience'"
+                        type="button">
+                        <i class="bi bi-briefcase-fill me-2"></i>
+                        {{ t('Kinh nghiệm', 'Experience') }}
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link fw-semibold px-4 py-2 rounded-pill"
+                        [class.active]="activeSkillTab === 'education'" (click)="activeSkillTab = 'education'"
+                        type="button">
+                        <i class="bi bi-mortarboard-fill me-2"></i>
+                        {{ t('Giáo dục', 'Education') }}
+                      </button>
+                    </li>
+                  </ul>
+
+                  <!-- Tab Content -->
+                  <div class="tab-content pt-2">
+                    <!-- Experience Tab -->
+                    <div *ngIf="activeSkillTab === 'experience'">
+                      <div class="row g-4">
+                        <div class="col-12" *ngFor="let item of experiences">
+                          <div class="experience-card p-3 rounded-3 bg-white border h-100 shadow-sm">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
+                              <h5 class="fw-bold text-primary mb-1">{{ item.title }}</h5>
+                              <!-- Fix: Period badge with better styling -->
+                              <span class="badge period-badge">
+                                <i class="bi bi-calendar3 me-1"></i> {{ item.period }}
+                              </span>
+                            </div>
+                            <h6 class="text-muted mb-3">
+                              <i class="bi bi-building me-1"></i> {{ item.company }}
+                            </h6>
+
+                            <!-- Technology Tags -->
+                            <div class="mb-2" *ngIf="item.technology">
+                              <i class="bi bi-tags me-1 text-primary"></i>
+                              <span class="fw-semibold small">{{ t('Công nghệ:', 'Technology:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-light text-dark border"
+                                  *ngFor="let tech of getTechnologyList(item.technology)">
+                                  {{ tech }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- AI Support -->
+                            <div class="mb-2" *ngIf="item.aisupport">
+                              <i class="bi bi-robot me-1 text-success"></i>
+                              <span class="fw-semibold small">{{ t('Hỗ trợ AI:', 'AI Support:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-success bg-opacity-10 text-success"
+                                  *ngFor="let ai of getAISupportList(item.aisupport)">
+                                  {{ ai }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- Contribution -->
+                            <div class="mb-2" *ngIf="item.contribute">
+                              <i class="bi bi-person-workspace me-1 text-info"></i>
+                              <span class="fw-semibold small">{{ t('Đóng góp:', 'Contribution:') }}</span>
+                              <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-info bg-opacity-10 text-info"
+                                  *ngFor="let role of getContributeList(item.contribute)">
+                                  {{ role }}
+                                </span>
+                              </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mt-2 pt-1">
+                              <i class="bi bi-chat-left-text me-1 text-warning"></i>
+                              <span class="fw-semibold small">{{ t('Mô tả:', 'Description:') }}</span>
+                              <p class="text-muted small mt-1 mb-0">
+                                {{ getDescription(item) }}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Education Tab - FIXED: Sử dụng getEducationTitle() -->
+                    <div *ngIf="activeSkillTab === 'education'">
+                      <div class="row g-4">
+                        <div class="col-md-6" *ngFor="let item of education">
+                          <div class="education-card p-3 rounded-3 bg-white border h-100 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                              <!-- QUAN TRỌNG: Gọi getEducationTitle để hiển thị đúng ngôn ngữ -->
+                              <h5 class="fw-bold text-primary mb-1">{{ getEducationTitle(item) }}</h5>
+                            </div>
+                            <p class="text-muted small mb-2">
+                              <i class="bi bi-calendar3 me-1"></i> {{ item.period }}
+                            </p>
+                            <hr class="my-2">
+                            <h6 class="mb-0">
+                              <i class="bi bi-backpack me-1"></i> {{ item.institution }}
+                            </h6>
+                            <div class="mt-2"
+                              *ngIf="getEducationTitle(item).includes('Chứng chỉ') || getEducationTitle(item).includes('Certification')">
+                              <span class="badge bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-patch-check-fill me-1"></i> {{ t('Chứng chỉ', 'Certified') }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="py-5">
+        <div class="container">
+          <!-- Section Title -->
+          <div class="section-title text-center mb-5">
+            <h2 class="display-6 fw-bold">{{ t('Liên hệ', 'Contact') }}</h2>
+            <div class="underline mx-auto" style="width: 80px; height: 4px; background-color: #0d6efd;"></div>
+            <p class="text-muted mt-3">{{ t('Hãy kết nối với tôi qua các kênh bên dưới', 'Connect with me through the
+              channels below') }}</p>
+          </div>
+
+          <div class="row g-4">
+            <!-- Contact Info Cards -->
+            <div class="col-lg-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                  <div class="contact-icon mb-3">
+                    <i class="fas fa-map-marker-alt fa-3x text-primary"></i>
+                  </div>
+                  <h5 class="fw-bold">{{ t('Địa chỉ', 'Address') }}</h5>
+                  <p class="text-muted mb-0">{{ profile.location || 'Hà Nội, Việt Nam' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                  <div class="contact-icon mb-3">
+                    <i class="fas fa-envelope fa-3x text-primary"></i>
+                  </div>
+                  <h5 class="fw-bold">{{ t('Email', 'Email') }}</h5>
+                  <p class="text-muted mb-0">
+                    <a [href]="'mailto:' + profile.email" class="text-decoration-none">{{ profile.email }}</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                  <div class="contact-icon mb-3">
+                    <i class="fas fa-phone-alt fa-3x text-primary"></i>
+                  </div>
+                  <h5 class="fw-bold">{{ t('Điện thoại', 'Phone') }}</h5>
+                  <p class="text-muted mb-0">
+                    <a [href]="'tel:' + profile.phone" class="text-decoration-none">{{ profile.phone }}</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Form - Yêu cầu đăng nhập -->
+          <div class="row g-4 mt-2">
+            <div class="col-lg-12">
+              <div class="contact-form-wrapper"
+                style="border-left: 2px solid #0d6efd; border-right: 2px solid #0d6efd; border-radius: 15px; background: white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);">
+                <div class="p-4 p-md-5">
+                  <!-- Kiểm tra trạng thái đăng nhập -->
+                  <ng-container *ngIf="authService.authenticated$ | async; else loginRequired">
+                    <!-- Form gửi tin nhắn cho Admin (đã đăng nhập) -->
+                    <form (ngSubmit)="sendNewMessage()">
+                      <div class="text-center mb-4">
+                        <div class="contact-title-icon mb-2">
+                          <i class="fas fa-envelope-open-text fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold">{{ t('Gửi tin nhắn đến Admin', 'Send message to Admin') }}</h3>
+                        <p class="text-muted">{{ t('Vui lòng điền đầy đủ thông tin bên dưới', 'Please fill in the
+                          information below') }}</p>
+                      </div>
+
+                      <div class="row g-4">
+                        <!-- Title / Subject -->
+                        <div class="col-md-12">
+                          <div class="form-floating mb-3">
+                            <input type="text" name="newSubject" class="form-control" id="subjectInput"
+                              [(ngModel)]="newSubject" [placeholder]="t('Nhập tiêu đề...', 'Enter subject...')"
+                              required>
+                            <label for="subjectInput">
+                              <i class="fas fa-tag me-2 text-primary"></i>{{ t('Tiêu đề *', 'Subject *') }}
+                            </label>
+                          </div>
+                        </div>
+
+                        <!-- Description / Content -->
+                        <div class="col-md-12">
+                          <div class="form-floating mb-3">
+                            <textarea name="newContent" class="form-control" id="messageInput" [(ngModel)]="newContent"
+                              rows="5" [placeholder]="t('Nhập nội dung...', 'Enter message...')" style="height: 150px"
+                              required></textarea>
+                            <label for="messageInput">
+                              <i class="fas fa-comment me-2 text-primary"></i>{{ t('Nội dung *', 'Message *') }}
+                            </label>
+                          </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 text-center">
+                          <button type="submit" class="btn btn-primary btn-lg px-5"
+                            [disabled]="!newSubject || !newContent">
+                            <i class="fas fa-paper-plane me-2"></i>{{ t('Gửi tin nhắn', 'Send message') }}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+
+                    <!-- Toast message -->
+                    <div *ngIf="toast" class="alert alert-success mt-4 text-center">
+                      <i class="fas fa-check-circle me-2"></i>{{ toast }}
+                    </div>
+                  </ng-container>
+
+                  <!-- Template yêu cầu đăng nhập -->
+                  <ng-template #loginRequired>
+                    <div class="text-center py-5">
+                      <div class="mb-4">
+                        <div class="lock-icon-wrapper"
+                          style="width: 80px; height: 80px; margin: 0 auto; background: rgba(13, 110, 253, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                          <i class="fas fa-lock fa-4x text-primary"></i>
+                        </div>
+                      </div>
+                      <h3 class="fw-bold mb-3">{{ t('Yêu cầu đăng nhập', 'Login Required') }}</h3>
+                      <p class="text-muted mb-4 px-4">
+                        {{ t('Để gửi tin nhắn cho Admin, vui lòng đăng nhập vào hệ thống. Bạn cũng có thể liên hệ trực
+                        tiếp qua email hoặc số điện thoại bên trên.',
+                        'To send a message to Admin, please login to the system. You can also contact me directly via
+                        email or phone above.') }}
+                      </p>
+                      <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a [href]="'mailto:' + profile.email" class="btn btn-outline-primary btn-lg px-4">
+                          <i class="fas fa-envelope me-2"></i>{{ t('Gửi email', 'Send email') }}
+                        </a>
+                        <a [href]="'tel:' + profile.phone" class="btn btn-outline-secondary btn-lg px-4">
+                          <i class="fas fa-phone me-2"></i>{{ t('Gọi điện', 'Call me') }}
+                        </a>
+                        <button type="button" class="btn btn-primary btn-lg px-4" (click)="openLoginModal()">
+                          <i class="fas fa-sign-in-alt me-2"></i>{{ t('Đăng nhập', 'Login') }}
+                        </button>
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="grid-footer">
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h5><i class="fas fa-rocket me-2"></i>Portfolio Platform</h5>
+          <p class="text-muted">{{ t('Giới thiệu dự án, kỹ năng và kinh nghiệm làm việc của tôi.', 'Introducing my
+            projects, skills, and work experience.') }}</p>
+        </div>
+        <div class="footer-section">
+          <h5>{{ t('Liên kết nhanh', 'Quick links') }}</h5>
+          <ul>
+            <li><button type="button" (click)="scrollTo('home')">{{ t('Trang chủ', 'Home') }}</button></li>
+            <li><button type="button" (click)="scrollTo('projects')">{{ t('Dự án', 'Projects') }}</button></li>
+            <li><button type="button" (click)="scrollTo('skills')">{{ t('Kỹ năng', 'Skills') }}</button></li>
+            <li><button type="button" (click)="scrollTo('contact')">{{ t('Liên hệ', 'Contact') }}</button></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h5>{{ t('Kết nối', 'Connect') }}</h5>
+          <div class="social-icons">
+            <a href="#" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          </div>
+          <p class="mt-3 text-muted">
+            <i class="fas fa-envelope me-2"></i> {{ profile.email }}<br>
+            <i class="fas fa-map-marker-alt me-2"></i> {{ profile.location }}
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Portfolio Platform. Built by Java Developer</p>
+      </div>
+    </div>
+  </footer>
+</div>
