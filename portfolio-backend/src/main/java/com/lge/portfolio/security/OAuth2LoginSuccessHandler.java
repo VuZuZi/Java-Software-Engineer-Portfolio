@@ -1,6 +1,8 @@
 package com.lge.portfolio.security;
 
-import jakarta.servlet.ServletException;
+import com.lge.portfolio.entity.Role;
+import com.lge.portfolio.entity.User;
+import com.lge.portfolio.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,21 +18,40 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication)
-            throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
-        OAuth2User user = (OAuth2User) authentication.getPrincipal();
+        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
 
-        String email = user.getAttribute("email");
+        String email = oauthUser.getAttribute("email");
+        final String name = oauthUser.getAttribute("name") != null
+                ? oauthUser.getAttribute("name")
+                : "Unknown User";
 
-        // 👉 tạo JWT
-        String token = jwtService.generateToken(email);
+        if (email == null) {
+            throw new RuntimeException("Email not found from OAuth2 provider");
+        }
 
-        // 👉 test KHÔNG cần frontend
-        response.sendRedirect("/login-success?token=" + token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    return userRepository.save(newUser);
+                });
+
+        if (user.getId() == null) {
+            throw new RuntimeException("User ID is null after save");
+        }
+
+        // Generate token
+        String token = jwtService.generateToken(user.getId());
+
+        // Redirect về frontend
+        response.sendRedirect("http://localhost:4200/oauth-success?token=" + token);
     }
 }

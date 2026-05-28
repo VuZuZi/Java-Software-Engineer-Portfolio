@@ -14,27 +14,27 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-    // 🔑 key ký JWT
+    // key ký JWT
     private Key getSignKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // 🔐 generate token
-    public String generateToken(String email) {
+    // generate token
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(String.valueOf(userId)) // subject
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24h
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 📥 extract email
-    public String extractEmail(String token) {
+    // extract userId
+    public String extractUserId(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    // 📦 parse claims
+    // parse claims
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
@@ -43,7 +43,7 @@ public class JwtService {
                 .getBody();
     }
 
-    // ✅ validate token
+    // validate token
     public boolean isValidToken(String token) {
         try {
             extractAllClaims(token);
@@ -51,5 +51,9 @@ public class JwtService {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public String extractEmail(String token) {
+        return  extractAllClaims(token).get("email").toString();
     }
 }

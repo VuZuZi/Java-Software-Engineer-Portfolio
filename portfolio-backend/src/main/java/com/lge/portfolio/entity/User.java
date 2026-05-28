@@ -1,4 +1,4 @@
-package com.lge.portfolio.user;
+package com.lge.portfolio.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +13,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String email;
 
     private String name;

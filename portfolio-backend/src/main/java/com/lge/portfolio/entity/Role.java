@@ -1,4 +1,4 @@
-package com.lge.portfolio.user;
+package com.lge.portfolio.entity;
 
 public enum Role {
     USER,

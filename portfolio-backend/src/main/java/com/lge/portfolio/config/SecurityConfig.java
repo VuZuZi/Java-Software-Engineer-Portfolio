@@ -18,25 +18,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Disable CSRF for API
                 .csrf(csrf -> csrf.disable())
 
+                // Authorization
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",                      // ✅ tránh 403
+                                "/",
                                 "/error",
                                 "/auth/**",
                                 "/oauth2/**",
-                                "/login/**"
+                                "/login/**",
+                                "/api/projects/**"   // ✅ đặt trước anyRequest
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // 🔥 BẮT BUỘC PHẢI CÓ
+                // OAuth2 Login
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
 
-                // JWT filter
+                // Logout (optional but recommended)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                )
+
+                // JWT Filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
