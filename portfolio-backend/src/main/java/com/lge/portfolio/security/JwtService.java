@@ -11,12 +11,16 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class JwtService {
 
     @Value("${jwt.secret}")
     private String secret;
+
+    @Value("${jwt.expiration-ms:86400000}")
+    private long expirationMs;
 
     private Key getSignKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
@@ -26,7 +30,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -37,7 +41,7 @@ public class JwtService {
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole() == null ? null : user.getRole().name())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -49,6 +53,11 @@ public class JwtService {
     public String extractEmail(String token) {
         Object email = extractAllClaims(token).get("email");
         return email == null ? null : email.toString();
+    }
+
+    public Optional<String> extractRole(String token) {
+        Object role = extractAllClaims(token).get("role");
+        return role == null ? Optional.empty() : Optional.of(role.toString());
     }
 
     public boolean isValidToken(String token) {

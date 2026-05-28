@@ -30,6 +30,7 @@ dependencies {
 
     // DB
     runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("com.h2database:h2")
 
     // Cloudinary
     implementation("com.cloudinary:cloudinary-http44:1.33.0")

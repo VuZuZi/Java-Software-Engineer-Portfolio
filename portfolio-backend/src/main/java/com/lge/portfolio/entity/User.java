@@ -5,8 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class User {
 
@@ -16,6 +18,9 @@ public class User {
 
     @Column(unique = true)
     private String email;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
 
     private String name;
 

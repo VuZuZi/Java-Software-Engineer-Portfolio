@@ -3,115 +3,241 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">Java Software Engineer</p>
-        <h1>Portfolio Projects</h1>
+        <h1>Portfolio Console</h1>
       </div>
-      <button class="ghost-button" type="button" (click)="loadProjects()" [disabled]="isLoading">
-        Refresh
-      </button>
+
+      @if (currentUser) {
+        <div class="account">
+          @if (currentUser.avatar) {
+            <img [src]="currentUser.avatar" [alt]="currentUser.name">
+          }
+          <div>
+            <strong>{{ currentUser.name }}</strong>
+            <span>{{ currentUser.email }}</span>
+          </div>
+          <button class="ghost-button" type="button" (click)="logout()">Logout</button>
+        </div>
+      } @else {
+        <a class="google-link" href="http://localhost:8080/oauth2/authorization/google">Google login</a>
+      }
     </header>
 
-    <section class="content-grid">
-      <form class="editor" (ngSubmit)="saveProject()" #projectForm="ngForm">
-        <div class="section-heading">
-          <h2>{{ isEditing ? 'Edit project' : 'New project' }}</h2>
-          <button class="text-button" type="button" (click)="resetForm()" [disabled]="isSaving">Clear</button>
-        </div>
+    <section class="dashboard-grid">
+      <aside class="side-panel">
+        @if (!currentUser) {
+          <form class="panel" (ngSubmit)="submitAuth()" #authNgForm="ngForm">
+            <div class="section-heading">
+              <h2>{{ authMode === 'login' ? 'Login' : 'Register' }}</h2>
+              <div class="mode-switch">
+                <button type="button" [class.active]="authMode === 'login'" (click)="setAuthMode('login')">Login</button>
+                <button type="button" [class.active]="authMode === 'register'" (click)="setAuthMode('register')">Register</button>
+              </div>
+            </div>
 
-        <label>
-          Title
-          <input
-            name="title"
-            [(ngModel)]="form.title"
-            maxlength="120"
-            required
-            placeholder="Spring Boot API, Angular dashboard..."
-          >
-        </label>
+            @if (authMode === 'register') {
+              <label>
+                Name
+                <input name="authName" [(ngModel)]="authForm.name" maxlength="120" required placeholder="Your name">
+              </label>
+            }
 
-        <label>
-          Description
-          <textarea
-            name="description"
-            [(ngModel)]="form.description"
-            maxlength="1000"
-            required
-            rows="5"
-            placeholder="Shortly describe the problem, architecture, and result."
-          ></textarea>
-        </label>
+            <label>
+              Email
+              <input name="authEmail" [(ngModel)]="authForm.email" type="email" required placeholder="you@example.com">
+            </label>
 
-        <div class="field-row">
-          <label>
-            Image URL
-            <input name="imageUrl" [(ngModel)]="form.imageUrl" maxlength="500" placeholder="https://...">
-          </label>
-          <label>
-            Technologies
-            <input name="technologies" [(ngModel)]="form.technologies" maxlength="300" placeholder="Java, Spring, MySQL">
-          </label>
-        </div>
+            <label>
+              Password
+              <input name="authPassword" [(ngModel)]="authForm.password" type="password" minlength="6" maxlength="72" required placeholder="At least 6 characters">
+            </label>
 
-        <div class="field-row">
-          <label>
-            Source URL
-            <input name="sourceUrl" [(ngModel)]="form.sourceUrl" maxlength="500" placeholder="GitHub repository">
-          </label>
-          <label>
-            Live URL
-            <input name="liveUrl" [(ngModel)]="form.liveUrl" maxlength="500" placeholder="Production demo">
-          </label>
-        </div>
+            @if (authError) {
+              <p class="error">{{ authError }}</p>
+            }
 
-        @if (errorMessage) {
-          <p class="error">{{ errorMessage }}</p>
+            <button class="primary-button" type="submit" [disabled]="isSubmittingAuth || authNgForm.invalid">
+              {{ isSubmittingAuth ? 'Processing...' : authMode === 'login' ? 'Login' : 'Create account' }}
+            </button>
+          </form>
         }
 
-        <button class="primary-button" type="submit" [disabled]="isSaving || projectForm.invalid">
-          {{ isSaving ? 'Saving...' : isEditing ? 'Update project' : 'Create project' }}
-        </button>
-      </form>
-
-      <section class="project-panel">
-        <div class="section-heading">
-          <h2>Project list</h2>
-          <span>{{ projects.length }} items</span>
-        </div>
-
-        @if (isLoading) {
-          <div class="empty-state">Loading projects...</div>
-        } @else if (projects.length === 0) {
-          <div class="empty-state">No projects yet. Add the first item from the form.</div>
-        } @else {
-          <div class="project-list">
-            @for (project of projects; track project.id) {
-              <article class="project-card">
-                @if (project.imageUrl) {
-                  <img [src]="project.imageUrl" [alt]="project.title">
-                }
-                <div class="project-body">
-                  <div>
-                    <h3>{{ project.title }}</h3>
-                    <p>{{ project.description }}</p>
-                  </div>
-
-                  @if (project.technologies) {
-                    <p class="tech">{{ project.technologies }}</p>
-                  }
-
-                  <div class="actions">
-                    @if (project.sourceUrl) {
-                      <a [href]="project.sourceUrl" target="_blank" rel="noreferrer">Source</a>
-                    }
-                    @if (project.liveUrl) {
-                      <a [href]="project.liveUrl" target="_blank" rel="noreferrer">Live</a>
-                    }
-                    <button type="button" class="small-button" (click)="editProject(project)">Edit</button>
-                    <button type="button" class="danger-button" (click)="deleteProject(project)">Delete</button>
-                  </div>
-                </div>
-              </article>
-            }
+        <form class="panel" (ngSubmit)="submitMessage()" #messageNgForm="ngForm">
+          <div class="section-heading">
+            <h2>Contact message</h2>
           </div>
+
+          <label>
+            Name
+            <input name="senderName" [(ngModel)]="messageForm.senderName" maxlength="120" required placeholder="Sender name">
+          </label>
+
+          <label>
+            Email
+            <input name="senderEmail" [(ngModel)]="messageForm.senderEmail" type="email" maxlength="160" required placeholder="sender@example.com">
+          </label>
+
+          <label>
+            Subject
+            <input name="subject" [(ngModel)]="messageForm.subject" maxlength="160" required placeholder="Project inquiry">
+          </label>
+
+          <label>
+            Message
+            <textarea name="content" [(ngModel)]="messageForm.content" maxlength="2000" required rows="5" placeholder="Write the message..."></textarea>
+          </label>
+
+          @if (messageError) {
+            <p class="error">{{ messageError }}</p>
+          }
+          @if (messageSuccess) {
+            <p class="success">{{ messageSuccess }}</p>
+          }
+
+          <button class="primary-button" type="submit" [disabled]="isSubmittingMessage || messageNgForm.invalid">
+            {{ isSubmittingMessage ? 'Sending...' : 'Send message' }}
+          </button>
+        </form>
+      </aside>
+
+      <section class="main-panel">
+        <section class="panel project-editor">
+          <div class="section-heading">
+            <h2>{{ isEditingProject ? 'Edit project' : 'New project' }}</h2>
+            <button class="text-button" type="button" (click)="resetProjectForm()" [disabled]="isSavingProject">Clear</button>
+          </div>
+
+          @if (!currentUser) {
+            <p class="notice">Dang nhap de them, sua hoac xoa project.</p>
+          }
+
+          <form (ngSubmit)="saveProject()" #projectNgForm="ngForm">
+            <label>
+              Title
+              <input name="title" [(ngModel)]="projectForm.title" maxlength="120" required placeholder="Spring Boot API, Angular dashboard...">
+            </label>
+
+            <label>
+              Description
+              <textarea name="description" [(ngModel)]="projectForm.description" maxlength="1000" required rows="4" placeholder="Describe the problem, architecture, and result."></textarea>
+            </label>
+
+            <div class="field-row">
+              <label>
+                Image URL
+                <input name="imageUrl" [(ngModel)]="projectForm.imageUrl" maxlength="500" placeholder="https://...">
+              </label>
+              <label>
+                Technologies
+                <input name="technologies" [(ngModel)]="projectForm.technologies" maxlength="300" placeholder="Java, Spring, MySQL">
+              </label>
+            </div>
+
+            <div class="field-row">
+              <label>
+                Source URL
+                <input name="sourceUrl" [(ngModel)]="projectForm.sourceUrl" maxlength="500" placeholder="GitHub repository">
+              </label>
+              <label>
+                Live URL
+                <input name="liveUrl" [(ngModel)]="projectForm.liveUrl" maxlength="500" placeholder="Production demo">
+              </label>
+            </div>
+
+            @if (projectError) {
+              <p class="error">{{ projectError }}</p>
+            }
+
+            <button class="primary-button" type="submit" [disabled]="!currentUser || isSavingProject || projectNgForm.invalid">
+              {{ isSavingProject ? 'Saving...' : isEditingProject ? 'Update project' : 'Create project' }}
+            </button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <h2>Project list</h2>
+            <button class="ghost-button" type="button" (click)="loadProjects()" [disabled]="isLoadingProjects">
+              Refresh
+            </button>
+          </div>
+
+          @if (isLoadingProjects) {
+            <div class="empty-state">Loading projects...</div>
+          } @else if (projects.length === 0) {
+            <div class="empty-state">No projects yet.</div>
+          } @else {
+            <div class="project-list">
+              @for (project of projects; track project.id) {
+                <article class="project-card">
+                  @if (project.imageUrl) {
+                    <img [src]="project.imageUrl" [alt]="project.title">
+                  }
+                  <div class="project-body">
+                    <div>
+                      <h3>{{ project.title }}</h3>
+                      <p>{{ project.description }}</p>
+                    </div>
+
+                    @if (project.technologies) {
+                      <p class="tech">{{ project.technologies }}</p>
+                    }
+
+                    <div class="actions">
+                      @if (project.sourceUrl) {
+                        <a [href]="project.sourceUrl" target="_blank" rel="noreferrer">Source</a>
+                      }
+                      @if (project.liveUrl) {
+                        <a [href]="project.liveUrl" target="_blank" rel="noreferrer">Live</a>
+                      }
+                      @if (currentUser) {
+                        <button type="button" class="small-button" (click)="editProject(project)">Edit</button>
+                        <button type="button" class="danger-button" (click)="deleteProject(project)">Delete</button>
+                      }
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        @if (currentUser) {
+          <section class="panel">
+            <div class="section-heading">
+              <h2>Inbox</h2>
+              <button class="ghost-button" type="button" (click)="loadMessages()" [disabled]="isLoadingMessages">
+                Refresh
+              </button>
+            </div>
+
+            @if (isLoadingMessages) {
+              <div class="empty-state">Loading messages...</div>
+            } @else if (messages.length === 0) {
+              <div class="empty-state">No messages yet.</div>
+            } @else {
+              <div class="message-list">
+                @for (message of messages; track message.id) {
+                  <article class="message-item" [class.unread]="!message.read">
+                    <div>
+                      <div class="message-meta">
+                        <strong>{{ message.senderName }}</strong>
+                        <span>{{ message.senderEmail }}</span>
+                        <time>{{ message.createdAt | date:'medium' }}</time>
+                      </div>
+                      <h3>{{ message.subject }}</h3>
+                      <p>{{ message.content }}</p>
+                    </div>
+                    <div class="actions">
+                      @if (!message.read) {
+                        <button type="button" class="small-button" (click)="markMessageAsRead(message)">Mark read</button>
+                      }
+                      <button type="button" class="danger-button" (click)="deleteMessage(message)">Delete</button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </section>
         }
       </section>
     </section>
