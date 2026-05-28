@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="810fef7e-0244-44f4-a2ce-9d18a678bd07" name="Changes" comment="" />
+    <list default="true" id="810fef7e-0244-44f4-a2ce-9d18a678bd07" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/HomeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/ProjectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/ProjectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/TestApi.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/controller/TestController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/entity/Project.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/entity/Project.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/JwtAuthFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/JwtService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/OAuth2LoginSuccessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/security/OAuth2LoginSuccessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/service/ProjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/java/com/lge/portfolio/service/ProjectService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-backend/src/test/java/com/lge/portfolio/PortfolioBackendApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolio-backend/src/test/java/com/lge/portfolio/PortfolioBackendApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolio-java/.idea/workspace.xml" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,10 +32,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "VuZuZi"
+  }
 }]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/VuZuZi/Java-Software-Engineer-Portfolio",
+    "accountId": "3d480cab-2328-4d15-896b-f24ec7131e6e"
+  }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="3DdO96oJsDnbAZOzeJB5CQ8Xakl" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -24,7 +58,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "test2",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true"
   }

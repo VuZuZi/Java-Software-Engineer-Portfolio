@@ -27,38 +27,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-
-        // ❌ Không có token → bỏ qua
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 👉 lấy token
         String token = authHeader.substring(7);
-
-        // ❌ Token không hợp lệ
         if (!jwtService.isValidToken(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 👉 lấy email từ token
-        String email = jwtService.extractEmail(token);
+        String principal = jwtService.extractEmail(token);
+        if (principal == null) {
+            principal = jwtService.extractUserId(token);
+        }
 
-        // 👉 tạo authentication
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        Collections.emptyList() // chưa có role
-                );
+                new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
 
-        authToken.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request)
-        );
-
-        // 👉 set vào context (QUAN TRỌNG)
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);

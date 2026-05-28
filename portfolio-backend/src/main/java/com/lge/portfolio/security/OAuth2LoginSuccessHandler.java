@@ -6,6 +6,7 @@ import com.lge.portfolio.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,38 +21,35 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
+    @Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-
         String email = oauthUser.getAttribute("email");
-        final String name = oauthUser.getAttribute("name") != null
-                ? oauthUser.getAttribute("name")
-                : "Unknown User";
-
         if (email == null) {
-            throw new RuntimeException("Email not found from OAuth2 provider");
+            throw new IllegalStateException("Email not found from OAuth2 provider");
         }
 
+        String name = oauthUser.getAttribute("name") == null
+                ? "Unknown User"
+                : oauthUser.getAttribute("name");
+        String avatar = oauthUser.getAttribute("picture");
 
         User user = userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setEmail(email);
-                    return userRepository.save(newUser);
-                });
+                .orElseGet(() -> User.builder()
+                        .email(email)
+                        .role(Role.USER)
+                        .build());
 
-        if (user.getId() == null) {
-            throw new RuntimeException("User ID is null after save");
-        }
+        user.setName(name);
+        user.setAvatar(avatar);
+        user = userRepository.save(user);
 
-        // Generate token
-        String token = jwtService.generateToken(user.getId());
-
-        // Redirect về frontend
-        response.sendRedirect("http://localhost:4200/oauth-success?token=" + token);
+        response.sendRedirect(frontendUrl + "/oauth-success?token=" + jwtService.generateToken(user));
     }
 }
