@@ -19,6 +19,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Column
+    private String password;
+
     @Column(name = "password_hash")
     private String passwordHash;
 
