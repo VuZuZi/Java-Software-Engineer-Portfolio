@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,8 @@ public class User {
     private String email;
     private String password;
 
-    private String provider; // LOCAL / GOOGLE
+    private String provider;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // 🔥
+    private Role role;
 }

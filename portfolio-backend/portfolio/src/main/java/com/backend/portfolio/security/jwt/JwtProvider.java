@@ -1,91 +1,81 @@
 package com.backend.portfolio.security.jwt;
 
 import com.backend.portfolio.entity.Role;
-import com.backend.portfolio.entity.User;
-import com.backend.portfolio.repository.UserRepository;
-import com.backend.portfolio.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-@RequiredArgsConstructor
-public class JwtProvider extends OncePerRequestFilter {
-
-    private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
+@Slf4j
+public class JwtProvider {
 
     @Value("${jwt.secret}")
     private String secret;
 
-    private final long EXPIRATION = 1000 * 60 * 60; // 1h
+    private SecretKey secretKey;
 
-    private SecretKey getKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+    private static final long EXPIRATION =
+            1000 * 60 * 60 * 24; // 24h
+
+    @PostConstruct
+    public void init() {
+
+        this.secretKey = Keys.hmacShaKeyFor(
+                secret.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
-    public String generateToken(Long userId, String email, Role role) {
+    public String generateToken(
+            Long userId,
+            String email,
+            Role role
+    ) {
+
         return Jwts.builder()
                 .subject(email)
                 .claim("userId", userId)
-                .claim("role", role)
+                .claim("role", role.name())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(getKey())
+                .expiration(
+                        new Date(System.currentTimeMillis() + EXPIRATION)
+                )
+                .signWith(secretKey)
                 .compact();
     }
+
     public Claims parseClaims(String token) {
+
         return Jwts.parser()
-                .verifyWith(getKey())
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
     public String getEmail(String token) {
+
         return parseClaims(token).getSubject();
     }
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+    public boolean validateToken(String token) {
 
-        if (header != null && header.startsWith("Bearer ")) {
+        try {
 
-            String token = header.substring(7);
+            parseClaims(token);
+            return true;
 
-            Claims claims = jwtProvider.parseClaims(token);
-            String email = claims.getSubject();
+        } catch (Exception ex) {
 
-            User user = userRepository.findByEmail(email).orElse(null);
-
-            if (user != null) {
-                CustomUserDetails userDetails = new CustomUserDetails(user);
-
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
+            log.warn("Invalid JWT token: {}", ex.getMessage());
+            return false;
         }
-
-        filterChain.doFilter(request, response);
     }
 }
