@@ -15,7 +15,7 @@ public class UserService {
 
     public User findByEmail(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        return userOptional.orElse(null); 
+        return userOptional.orElse(null); // Returns null if not found
     }
 
     // Alternative: throw exception if not found

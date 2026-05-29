@@ -6,8 +6,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # dev
+    ddl-auto: update   # dev
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
