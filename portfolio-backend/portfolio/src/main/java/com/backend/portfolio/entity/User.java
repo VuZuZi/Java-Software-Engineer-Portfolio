@@ -21,5 +21,5 @@ public class User extends BaseEntity{
     private String provider;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.ROLE_USER;
 }
